@@ -1,14 +1,16 @@
 // api/generate-lyrics.js
+const axios = require('axios');
+
 module.exports = async (req, res) => {
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  
+
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
-  
+
   // Sadece POST isteği kabul et
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Sadece POST isteği kabul edilir.' });
@@ -28,23 +30,24 @@ module.exports = async (req, res) => {
 
   try {
     // KIE.ai API endpoint
-    const response = await fetch('https://api.kieai.erweima.ai/api/v1/lyrics', {
-      method: 'POST',
+    const response = await axios.post('https://api.kieai.erweima.ai/api/v1/lyrics', {
+      prompt,
+      callBackUrl: callBackUrl || "https://google.com"
+    }, {
       headers: {
         'Authorization': `Bearer ${API_KEY}`,
         'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        prompt,
-        callBackUrl: callBackUrl || "https://google.com"
-      })
+      }
     });
 
-    const data = await response.json();
-    return res.status(200).json(data);
+    return res.status(200).json(response.data);
 
   } catch (error) {
-    console.error("Generate Lyrics Error:", error);
-    return res.status(500).json({ error: error.message });
+    console.error("Generate Lyrics Error:", error.response?.data || error.message);
+    return res.status(error.response?.status || 500).json({
+      error: 'Failed to generate lyrics',
+      details: error.response?.data?.msg || error.message,
+      code: error.code || 'INTERNAL_ERROR'
+    });
   }
 };
