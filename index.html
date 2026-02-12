@@ -1067,7 +1067,7 @@
             };
 
             // Call API
-            fetch('/api/proxy', {
+            fetch('/api/generate?type=song', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken },
                 body: JSON.stringify(payload)
@@ -1087,7 +1087,7 @@
         function pollStatus(taskId, orderData) {
             const interval = setInterval(async () => {
                 try {
-                    const res = await fetch('/api/status?taskId=' + taskId);
+                    const res = await fetch('/api/generate?taskId=' + taskId);
                     const json = await res.json();
                     const data = json.data;
 

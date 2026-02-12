@@ -23,10 +23,10 @@ function removeToken() {
 export async function login(credentials) {
     try {
         console.log('🔐 Login başlatılıyor...');
-        
+
         // Wix token'dan gelen veri
         let userData = credentials;
-        
+
         // Eğer base64 token ise decode et
         if (typeof credentials === 'string') {
             try {
@@ -37,9 +37,9 @@ export async function login(credentials) {
                 return { success: false, error: 'Invalid token' };
             }
         }
-        
+
         // API'ye gönder
-        const response = await fetch('/api/auth-sync', {
+        const response = await fetch('/api/user?type=sync', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -53,9 +53,9 @@ export async function login(credentials) {
                 }
             })
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             setToken(data.token);
             console.log('✅ Login başarılı:', data.user);
@@ -75,13 +75,13 @@ export async function login(credentials) {
 export async function syncSession() {
     try {
         const token = getToken();
-        
+
         if (!token) {
             console.log('ℹ️ Token yok');
             return { success: false, error: 'No token' };
         }
-        
-        const response = await fetch('/api/auth-sync', {
+
+        const response = await fetch('/api/user?type=sync', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -91,9 +91,9 @@ export async function syncSession() {
                 action: 'sync'
             })
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             console.log('✅ Session sync:', data.user);
             return { success: true, user: data.user };
@@ -113,9 +113,9 @@ export async function syncSession() {
 export async function logout() {
     try {
         const token = getToken();
-        
+
         if (token) {
-            await fetch('/api/auth-sync', {
+            await fetch('/api/user?type=sync', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -126,7 +126,7 @@ export async function logout() {
                 })
             });
         }
-        
+
         removeToken();
         console.log('✅ Logout başarılı');
         return { success: true };
@@ -140,16 +140,16 @@ export async function logout() {
 
 export async function apiRequest(url, options = {}) {
     const token = getToken();
-    
+
     const headers = {
         'Content-Type': 'application/json',
         ...(options.headers || {})
     };
-    
+
     if (token) {
         headers['Authorization'] = `Bearer ${token}`;
     }
-    
+
     return fetch(url, {
         ...options,
         headers
