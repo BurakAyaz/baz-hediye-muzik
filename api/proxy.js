@@ -1,6 +1,5 @@
 // api/proxy.js
 const { MongoClient } = require('mongodb');
-const axios = require('axios');
 
 let cachedClient = null;
 let cachedDb = null;
@@ -149,29 +148,30 @@ module.exports = async (req, res) => {
     console.log("Kie.ai'ye giden istek:", payload);
 
     // Kie.ai API İsteği
-    const response = await axios.post('https://api.kie.ai/api/v1/generate', payload, {
+    const response = await fetch('https://api.kie.ai/api/v1/generate', {
+      method: 'POST',
       headers: {
         'Authorization': `Bearer ${process.env.KIE_API_KEY}`,
         'Content-Type': 'application/json'
-      }
+      },
+      body: JSON.stringify(payload)
     });
 
-    const data = response.data;
+    const data = await response.json();
 
-    // Hata Kontrolü (Axios throws on non-2xx by default, but checking data code if needed)
-    if (data.code && data.code !== 200) {
-      console.error("Kie.ai API İş Mantığı Hatası:", data);
+    // Hata Kontrolü
+    if (!response.ok) {
+      console.error("Kie.ai API Hatası:", data);
       throw new Error(data.msg || data.error || JSON.stringify(data));
     }
 
     return res.status(200).json(data);
 
   } catch (error) {
-    console.error("Proxy Hatası:", error.response?.data || error.message);
-    return res.status(error.response?.status || 500).json({
+    console.error("Proxy Hatası:", error);
+    return res.status(500).json({
       error: 'Müzik başlatılamadı',
-      details: error.response?.data?.msg || error.message,
-      code: error.code || 'INTERNAL_ERROR'
+      details: error.message
     });
   }
 };

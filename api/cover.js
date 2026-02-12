@@ -1,6 +1,4 @@
 // api/cover.js - Upload And Cover Audio API Endpoint
-const axios = require('axios');
-
 export default async function handler(req, res) {
   // 1. Sadece POST isteği kabul et
   if (req.method !== 'POST') {
@@ -14,26 +12,26 @@ export default async function handler(req, res) {
 
   try {
     // HTML formundan gelen verileri alıyoruz
-    const {
+    const { 
       uploadUrl,
-      prompt,
-      style,
-      title,
+      prompt, 
+      style, 
+      title, 
       customMode,
-      instrumental,
-      model,
-      vocalGender,
-      negativeTags,
-      styleWeight,
-      weirdnessConstraint,
-      audioWeight,
+      instrumental, 
+      model, 
+      vocalGender, 
+      negativeTags, 
+      styleWeight, 
+      weirdnessConstraint, 
+      audioWeight, 
       personaId,
-      callBackUrl
+      callBackUrl 
     } = req.body;
 
     // 3. Validasyon
     if (!uploadUrl) {
-      return res.status(400).json({
+      return res.status(400).json({ 
         error: 'uploadUrl zorunludur.',
         details: 'Kapak yapılacak ses dosyasının URL\'sini girin.'
       });
@@ -47,14 +45,14 @@ export default async function handler(req, res) {
     const isInstrumental = instrumental === true;
 
     if (!isCustomMode && !prompt) {
-      return res.status(400).json({
+      return res.status(400).json({ 
         error: 'Non-custom modda prompt zorunludur.',
         details: 'Müzik açıklaması girin (max 500 karakter).'
       });
     }
 
     if (isCustomMode && !isInstrumental && !prompt) {
-      return res.status(400).json({
+      return res.status(400).json({ 
         error: 'Custom modda şarkı sözleri (prompt) zorunludur.',
         details: 'Instrumental değilse şarkı sözleri gerekli.'
       });
@@ -92,17 +90,19 @@ export default async function handler(req, res) {
     console.log("Cover API - Kie.ai'ye giden istek:", payload);
 
     // 5. Kie.ai API İsteği
-    const response = await axios.post('https://api.kie.ai/api/v1/generate/upload-cover', payload, {
+    const response = await fetch('https://api.kie.ai/api/v1/generate/upload-cover', {
+      method: 'POST',
       headers: {
         'Authorization': `Bearer ${process.env.KIE_API_KEY}`,
         'Content-Type': 'application/json'
-      }
+      },
+      body: JSON.stringify(payload)
     });
 
-    const data = response.data;
+    const data = await response.json();
 
     // 6. Hata Kontrolü
-    if (data.code && data.code !== 200) {
+    if (!response.ok) {
       console.error("Cover API Hatası:", data);
       throw new Error(data.msg || data.error || JSON.stringify(data));
     }
@@ -110,10 +110,10 @@ export default async function handler(req, res) {
     return res.status(200).json(data);
 
   } catch (error) {
-    console.error("Cover Proxy Hatası:", error.response?.data || error.message);
-    return res.status(error.response?.status || 500).json({
-      error: 'Cover işlemi başlatılamadı',
-      details: error.response?.data?.msg || error.message
+    console.error("Cover Proxy Hatası:", error);
+    return res.status(500).json({ 
+      error: 'Cover işlemi başlatılamadı', 
+      details: error.message 
     });
   }
 }

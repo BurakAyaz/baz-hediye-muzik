@@ -1,6 +1,4 @@
 // api/extend.js - Upload And Extend Audio API Endpoint
-const axios = require('axios');
-
 export default async function handler(req, res) {
   // 1. Sadece POST isteği kabul et
   if (req.method !== 'POST') {
@@ -14,33 +12,33 @@ export default async function handler(req, res) {
 
   try {
     // HTML formundan gelen verileri alıyoruz
-    const {
+    const { 
       uploadUrl,
-      prompt,
-      style,
-      title,
+      prompt, 
+      style, 
+      title, 
       continueAt,
-      instrumental,
-      model,
-      vocalGender,
-      negativeTags,
-      styleWeight,
-      weirdnessConstraint,
-      audioWeight,
+      instrumental, 
+      model, 
+      vocalGender, 
+      negativeTags, 
+      styleWeight, 
+      weirdnessConstraint, 
+      audioWeight, 
       personaId,
-      callBackUrl
+      callBackUrl 
     } = req.body;
 
     // 3. Validasyon
     if (!uploadUrl) {
-      return res.status(400).json({
+      return res.status(400).json({ 
         error: 'uploadUrl zorunludur.',
         details: 'Uzatılacak ses dosyasının URL\'sini girin.'
       });
     }
 
     if (!continueAt) {
-      return res.status(400).json({
+      return res.status(400).json({ 
         error: 'continueAt zorunludur.',
         details: 'Müziğin hangi saniyeden devam edeceğini belirtin.'
       });
@@ -61,7 +59,7 @@ export default async function handler(req, res) {
     // Custom Mode parametreleri
     payload.style = style || "Pop";
     payload.title = title || "Extended Song";
-
+    
     if (!isInstrumental && prompt) {
       payload.prompt = prompt;
     }
@@ -77,17 +75,19 @@ export default async function handler(req, res) {
     console.log("Extend API - Kie.ai'ye giden istek:", payload);
 
     // 5. Kie.ai API İsteği - Upload and Extend endpoint
-    const response = await axios.post('https://api.kie.ai/api/v1/generate/upload-extend', payload, {
+    const response = await fetch('https://api.kie.ai/api/v1/generate/upload-extend', {
+      method: 'POST',
       headers: {
         'Authorization': `Bearer ${process.env.KIE_API_KEY}`,
         'Content-Type': 'application/json'
-      }
+      },
+      body: JSON.stringify(payload)
     });
 
-    const data = response.data;
+    const data = await response.json();
 
     // 6. Hata Kontrolü
-    if (data.code && data.code !== 200) {
+    if (!response.ok) {
       console.error("Extend API Hatası:", data);
       throw new Error(data.msg || data.error || JSON.stringify(data));
     }
@@ -95,10 +95,10 @@ export default async function handler(req, res) {
     return res.status(200).json(data);
 
   } catch (error) {
-    console.error("Extend Proxy Hatası:", error.response?.data || error.message);
-    return res.status(error.response?.status || 500).json({
-      error: 'Extend işlemi başlatılamadı',
-      details: error.response?.data?.msg || error.message
+    console.error("Extend Proxy Hatası:", error);
+    return res.status(500).json({ 
+      error: 'Extend işlemi başlatılamadı', 
+      details: error.message 
     });
   }
 }
