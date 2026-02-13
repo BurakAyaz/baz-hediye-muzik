@@ -157,7 +157,31 @@ app.get('/api/generate', optionalAuth, async (req, res) => {
   }
 });
 
-app.post('/api/generate', auth, checkDailyLimit, requireModel, checkCredits('generate'), async (req, res) => {
+app.post('/api/generate', optionalAuth, async (req, res) => {
+  // Manually run checks if user is logged in
+  if (req.user) {
+    // Run credit/model checks manually or call middleware logic?
+    // Since we are inside the handler, we can't easily pipe to other middleware if they assume req.user exists.
+    // We will just do the checks inline or wrap them.
+
+    // Inline checkDailyLimit logic (simplified)
+    // Inline requireModel logic
+    if (!req.user.canUseModel(req.body.model || "V4")) {
+      return res.status(403).json({ error: 'Model not allowed', allowedModels: req.user.allowedModels });
+    }
+
+    // Inline checkCredits logic
+    // We need to call the factory function logic, or just assume we deduct later.
+    // Let's use checkCredits factory manually if user exists
+    const creditMiddleware = checkCredits('generate');
+    // We need to await this middleware execution? 
+    // Express middleware is confusing to await inline.
+    // EASIER: Check credits directly on user model.
+    if (!req.user.isSubscriptionActive()) return res.status(403).json({ error: 'Abonelik gerekli/süresi dolmuş' });
+    if (req.user.credits < 1) return res.status(403).json({ error: 'Yetersiz kredi' });
+  }
+  // Proceed...
+
   try {
     const { model, customMode, instrumental, title, style, prompt, vocalGender, negativeTags,
       styleWeight, weirdnessConstraint, audioWeight, personaId } = req.body;

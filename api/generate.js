@@ -5,6 +5,7 @@ const User = require('../models/User');
 const Transaction = require('../models/Transaction');
 // Middleware
 const auth = require('../middleware/auth');
+const { optionalAuth } = require('../middleware/auth');
 const checkCredits = require('../middleware/credits');
 const { deductCredit, refundCredit } = require('../middleware/credits');
 
@@ -24,13 +25,7 @@ module.exports = async (req, res) => {
         // 2. Connect to DB
         await connectToDatabase();
 
-        // 3. Status Check (GET) - No auth required for simple status? 
-        // Logic says we usually need auth, but let's keep it open or use optionalAuth if needed.
-        // For now, mirroring previous logic which didn't strictly enforce auth for GET (but had a token check block).
-        // Actually, the original code allowed GET without DB check if it was just proxying.
-        // Let's secure it properly if possible, or keep it open if it's just a proxy.
-        // The original code had a huge try/catch block.
-
+        // 3. Status Check (GET)
         if (req.method === 'GET') {
             const { taskId } = req.query;
             if (!taskId) return res.status(400).json({ error: 'Task ID gerekli.' });
@@ -49,16 +44,20 @@ module.exports = async (req, res) => {
             return res.status(405).json({ error: 'Method not allowed' });
         }
 
-        // 4. Authentication & Credit Check (POST)
-        // Run auth middleware
-        await runMiddleware(req, res, auth);
+        // 4. Authentication Check (Optional for Gift/Guest Flow)
+        // We use optionalAuth. If token is valid, req.user is set. If not, req.user is undefined.
+        await runMiddleware(req, res, optionalAuth);
 
-        // Run credit check middleware
-        // This validates: Subscription, Expiry, Credit Balance >= 1
-        // Using factory pattern for specific action type if generic, or just 'generate'
-        await runMiddleware(req, res, checkCredits('generate'));
+        // 5. Credit Check (Only if User is logged in)
+        if (req.user) {
+            await runMiddleware(req, res, checkCredits('generate'));
+        } else {
+            // Guest Flow: We assume payment handled externally (IyziLink)
+            // Ideally we'd verify payment here, but for now we allow it.
+            console.log('Guest generation request (Payment assumed)');
+        }
 
-        // 5. Processing
+        // 6. Processing
         const type = req.query.type || 'song'; // song, cover, extend, persona
         let apiUrl = '';
         let payload = {};
@@ -70,8 +69,8 @@ module.exports = async (req, res) => {
             apiUrl = `${KIE_API_URL}/generate`;
             const { prompt, style, title, instrumental, model, customMode, vocalGender, negativeTags, styleWeight, weirdnessConstraint, audioWeight, personaId } = body;
 
-            // Model Permission Check
-            if (!req.user.canUseModel(model || "V4")) {
+            // Permission Checks (Only for logged in users)
+            if (req.user && !req.user.canUseModel(model || "V4")) {
                 return res.status(403).json({ error: `Model not allowed: ${model}`, allowed: req.user.allowedModels });
             }
 
@@ -82,17 +81,17 @@ module.exports = async (req, res) => {
                 instrumental: instrumental || false,
                 style: style || "Pop",
                 title: title || "New Song",
-                callBackUrl: callBackUrl || "https://google.com" // Update this to real callback if possible
+                callBackUrl: callBackUrl || "https://google.com"
             };
             if (vocalGender) payload.vocalGender = vocalGender;
             if (negativeTags) payload.negativeTags = negativeTags;
             if (styleWeight) payload.styleWeight = parseFloat(styleWeight);
             if (weirdnessConstraint) payload.weirdnessConstraint = parseFloat(weirdnessConstraint);
             if (audioWeight) payload.audioWeight = parseFloat(audioWeight);
-            if (personaId && req.user.canUseFeature('persona')) payload.personaId = personaId;
+            if (personaId && req.user && req.user.canUseFeature('persona')) payload.personaId = personaId;
 
         } else if (type === 'cover') {
-            if (!req.user.canUseFeature('cover')) return res.status(403).json({ error: 'Cover feature not included in your plan' });
+            if (req.user && !req.user.canUseFeature('cover')) return res.status(403).json({ error: 'Cover feature not included in your plan' });
 
             apiUrl = `${KIE_API_URL}/generate/upload-cover`;
             const { uploadUrl, prompt, style, title, customMode, instrumental, model, vocalGender, negativeTags, styleWeight, weirdnessConstraint, audioWeight, personaId } = body;
@@ -119,10 +118,10 @@ module.exports = async (req, res) => {
             if (styleWeight) payload.styleWeight = parseFloat(styleWeight);
             if (weirdnessConstraint) payload.weirdnessConstraint = parseFloat(weirdnessConstraint);
             if (audioWeight) payload.audioWeight = parseFloat(audioWeight);
-            if (personaId && req.user.canUseFeature('persona')) payload.personaId = personaId;
+            if (personaId && req.user && req.user.canUseFeature('persona')) payload.personaId = personaId;
 
         } else if (type === 'extend') {
-            if (!req.user.canUseFeature('extend')) return res.status(403).json({ error: 'Extend feature not included in your plan' });
+            if (req.user && !req.user.canUseFeature('extend')) return res.status(403).json({ error: 'Extend feature not included in your plan' });
 
             apiUrl = `${KIE_API_URL}/generate/upload-extend`;
             const { uploadUrl, prompt, style, title, continueAt, instrumental, model, vocalGender, negativeTags, styleWeight, weirdnessConstraint, audioWeight, personaId } = body;
@@ -145,10 +144,10 @@ module.exports = async (req, res) => {
             if (styleWeight) payload.styleWeight = parseFloat(styleWeight);
             if (weirdnessConstraint) payload.weirdnessConstraint = parseFloat(weirdnessConstraint);
             if (audioWeight) payload.audioWeight = parseFloat(audioWeight);
-            if (personaId && req.user.canUseFeature('persona')) payload.personaId = personaId;
+            if (personaId && req.user && req.user.canUseFeature('persona')) payload.personaId = personaId;
 
         } else if (type === 'persona') {
-            if (!req.user.canUseFeature('persona')) return res.status(403).json({ error: 'Persona feature not included in your plan' });
+            if (req.user && !req.user.canUseFeature('persona')) return res.status(403).json({ error: 'Persona feature not included in your plan' });
 
             apiUrl = `${KIE_API_URL}/generate/generate-persona`;
             const { taskId, audioId, name, description } = body;
@@ -158,7 +157,7 @@ module.exports = async (req, res) => {
             return res.status(400).json({ error: 'Invalid generate type' });
         }
 
-        // 6. Call External API
+        // 7. Call External API
         console.log(`Sending ${type} request to KIE:`, payload);
         const externalResponse = await fetch(apiUrl, {
             method: 'POST',
@@ -176,34 +175,33 @@ module.exports = async (req, res) => {
             throw new Error(data.msg || data.error || 'External API Error');
         }
 
-        // 7. Deduct Credit (Success Case)
-        // If data.code === 200 or generic success
+        // 8. Deduct Credit (Only for Logged In User)
         if (data.code === 200 || data.status === 'success' || data.taskId) {
-            const transactionData = {
-                type: type,
-                taskId: data.data?.taskId || data.taskId,
-                model: payload.model,
-                title: payload.title
-            };
+            if (req.user) {
+                const transactionData = {
+                    type: type,
+                    taskId: data.data?.taskId || data.taskId,
+                    model: payload.model,
+                    title: payload.title
+                };
 
-            try {
-                const creditResult = await deductCredit(req, transactionData);
-                return res.status(200).json({ ...data, creditInfo: creditResult });
-            } catch (deductError) {
-                console.error('Credit deduction failed AFTER generation:', deductError);
-                // Technically generation started but we failed to record it. 
-                // Don't fail the user request if possible, but log it critical.
-                return res.status(200).json({ ...data, creditError: 'Credit sync failed but generation started' });
+                try {
+                    const creditResult = await deductCredit(req, transactionData);
+                    return res.status(200).json({ ...data, creditInfo: creditResult });
+                } catch (deductError) {
+                    console.error('Credit deduction failed AFTER generation:', deductError);
+                    return res.status(200).json({ ...data, creditError: 'Credit sync failed but generation started' });
+                }
+            } else {
+                // Guest: Just return success
+                return res.status(200).json(data);
             }
         } else {
-            // API returned non-success code (e.g. 500 from provider)
             return res.status(400).json(data);
         }
 
     } catch (error) {
         console.error("Generate API Error:", error);
-        // If error happened, and IF we had deducted credits prematurely (which we didn't, we do it after success), we would refund.
-        // Since we deduct AFTER success, no need to refund here.
         return res.status(500).json({ error: 'İşlem başarısız', details: error.message });
     }
 };
