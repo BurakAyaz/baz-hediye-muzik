@@ -1054,6 +1054,22 @@
             // Show initial waiting state in result area
             renderStatusCard('waiting', 'Ödeme Bekleniyor');
 
+            // Genre Mapping
+            const genreMap = {
+                'Pop': 'Pop, Catchy, Melodic, Turkish Pop',
+                'T-Pop': 'Turkish Pop, Upbeat, Catchy, Modern, Summer Hit',
+                'Arabesk': 'Turkish Arabesque, Emotional, Strings, Melancholic, Deep Vocals',
+                'Anadolu Rock': 'Turkish Anatolian Rock, Electric Guitar, Fusion, Folk Rock',
+                'Sanat Müziği': 'Traditional Turkish Classical Music, Fasıl, Kanun, Ud, Elegant',
+                'Özgün Müzik': 'Turkish Folk, Acoustic, Saz, Baglama, Emotional',
+                'Halay': 'Turkish Halay, Wedding Dance, Upbeat, Zurna, Davul, High Tempo, Energetic',
+                'Rap': 'Turkish Rap, Hip Hop, Rhythmic, Flow, Beat',
+                'Rock': 'Rock, Electric Guitar, Powerful, Energetic, Turkish Rock',
+                'Jazz': 'Jazz, Smooth, Saxophone, Piano, Relaxing',
+                'Blues': 'Blues, Soulful, Electric Guitar, Slow',
+                'Klasik': 'Classical, Orchestral, Piano, Violin, Cinematic'
+            };
+
             const stylePrompt = pending.genre === 'custom'
                 ? document.getElementById('gfStyle').value
                 : genreMap[pending.genre] || pending.genre + ", Turkish Music";
