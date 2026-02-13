@@ -24,12 +24,13 @@ module.exports = async (req, res) => {
         let user = await User.findOne({ email: guestInfo.email });
         if (!user) {
             user = new User({
-                wixUserId: 'guest_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
                 email: guestInfo.email,
                 displayName: guestInfo.name || 'Guest',
                 planId: 'none',
                 credits: 0
             });
+            // Sync wixUserId with _id
+            user.wixUserId = user._id.toString();
             await user.save();
         }
 

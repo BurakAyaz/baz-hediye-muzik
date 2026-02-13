@@ -1099,6 +1099,7 @@
 
                 if (data.success && data.transactionId) {
                     currentTransactionId = data.transactionId;
+                    localStorage.setItem('gf_current_transaction', currentTransactionId);
                     console.log('Transaction Initiated:', currentTransactionId);
                     // Start Polling for Webhook
                     pollForWebhook(currentTransactionId, pending);
@@ -1108,25 +1109,30 @@
 
             } catch (err) {
                 console.error(err);
-                document.getElementById('generatingOverlay').classList.remove('active');
                 showToast('Hata: Sipariş başlatılamadı.', 'error');
+                removeStatusCard();
             }
         }
 
         function pollForWebhook(transactionId, orderData) {
-            const interval = setInterval(async () => {
+            // Avoid multiple intervals
+            if (window.webhookInterval) clearInterval(window.webhookInterval);
+
+            window.webhookInterval = setInterval(async () => {
                 try {
                     const res = await fetch(`/api/gift/status?transactionId=${transactionId}`);
                     const json = await res.json();
 
                     if (json.taskId) {
                         // Webhook fired! Generation started.
-                        clearInterval(interval);
-                        document.getElementById('genStatusText').textContent = 'Ödeme Onaylandı! Şarkınız Hazırlanıyor...';
+                        clearInterval(window.webhookInterval);
+
+                        // Switch UI to Generating
+                        renderStatusCard('generating', 'Ödeme Onaylandı! Şarkınız Hazırlanıyor...');
                         pollStatus(json.taskId, orderData);
                     } else {
                         // Still waiting
-                        document.getElementById('genStatusText').textContent = 'Ödeme Onayı Bekleniyor... (Lütfen Ödemeyi Tamamlayın)';
+                        renderStatusCard('waiting', 'Ödeme Onayı Bekleniyor... (Lütfen Ödemeyi Tamamlayın)');
                     }
                 } catch (e) {
                     console.error('Webhook poll error', e);
@@ -1135,7 +1141,9 @@
         }
 
         function pollStatus(taskId, orderData) {
-            const interval = setInterval(async () => {
+            if (window.statusInterval) clearInterval(window.statusInterval);
+
+            window.statusInterval = setInterval(async () => {
                 try {
                     const res = await fetch('/api/generate?taskId=' + taskId);
                     const json = await res.json();
@@ -1143,10 +1151,13 @@
 
                     if (data) {
                         if (data.status === 'SUCCESS') {
-                            clearInterval(interval);
-                            document.getElementById('generatingOverlay').classList.remove('active');
+                            clearInterval(window.statusInterval);
 
-                            // Add result to storage
+                            // Success! Remove status card, add real result
+                            removeStatusCard();
+                            localStorage.removeItem('gf_current_transaction'); // Clear pending state
+
+                            // Add result
                             const newTracks = data.response.sunoData.map(t => ({
                                 ...t,
                                 generatedAt: Date.now(),
@@ -1154,19 +1165,63 @@
                             }));
 
                             saveTracks(newTracks);
-                            showResults();
+                            // Ensure results are visible
+                            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
                         } else if (data.status === 'FAILED' || data.status === 'error') {
-                            clearInterval(interval);
-                            document.getElementById('generatingOverlay').classList.remove('active');
+                            clearInterval(window.statusInterval);
+                            renderStatusCard('error', 'Oluşturma başarısız oldu.');
                             showToast('Oluşturma başarısız oldu.', 'error');
                         } else {
                             // Update status text
-                            if (data.status === 'TEXT_SUCCESS') document.getElementById('genStatusText').textContent = 'Sözler yazılıyor...';
-                            else if (data.status === 'First_SUCCESS') document.getElementById('genStatusText').textContent = 'Melodi oluşturuluyor...';
+                            let statusMsg = 'Şarkınız Hazırlanıyor...';
+                            if (data.status === 'TEXT_SUCCESS') statusMsg = 'Sözler yazılıyor...';
+                            else if (data.status === 'First_SUCCESS') statusMsg = 'Melodi oluşturuluyor...';
+
+                            renderStatusCard('generating', statusMsg);
                         }
                     }
                 } catch (e) { }
             }, 4000);
+        }
+
+        // Helper to render a "Status Card" at the top of the results list
+        function renderStatusCard(type, message) {
+            const container = document.getElementById('tracksContainer');
+            // Remove existing status card if any
+            const existing = document.getElementById('statusCard');
+            if (existing) existing.remove();
+
+            const div = document.createElement('div');
+            div.id = 'statusCard';
+            div.className = 'gf-track-card';
+            div.style.border = type === 'error' ? '1px solid #ff4444' : '1px solid rgba(255,255,255,0.3)';
+            div.style.background = 'rgba(255,255,255,0.05)';
+
+            let icon = '<div class="gf-spinner" style="width:24px; height:24px; border-width:3px;"></div>';
+            if (type === 'waiting') icon = '💳';
+            if (type === 'error') icon = '❌';
+
+            div.innerHTML = `
+                <div style="display:flex; gap:16px; align-items:center;">
+                    <div style="display:flex; align-items:center; justify-content:center; width:48px; height:48px;">
+                        ${icon}
+                    </div>
+                    <div style="flex:1;">
+                        <h3 style="font-size:16px; margin-bottom:4px; color:#fff;">${message}</h3>
+                        <div style="font-size:12px; color:rgba(255,255,255,0.6);">
+                            ${type === 'waiting' ? 'İşlem tamamlanana kadar bu ekranı kapatmayın.' : 'Bu işlem 1-2 dakika sürebilir.'}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Prepend
+            container.insertBefore(div, container.firstChild);
+        }
+
+        function removeStatusCard() {
+            const existing = document.getElementById('statusCard');
+            if (existing) existing.remove();
         }
 
         // ==================== RESULTS STORAGE & DISPLAY ====================
