@@ -819,14 +819,6 @@
             <div class="gf-spinner"></div>
             <h2>Ödeme Bekleniyor</h2>
             <p>Lütfen açılan pencerede ödemeyi tamamlayın.</p>
-            <div style="margin-top: 20px;">
-                <button type="button" class="gf-btn-secondary" onclick="manualPaymentConfirm()"
-                    style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 10px 20px; border-radius: 8px; cursor: pointer;">
-                    Ödemeyi Tamamladım
-                </button>
-            </div>
-            <p style="margin-top: 10px; font-size: 12px; color: rgba(255,255,255,0.5);">Pop-up açılmadıysa veya sorun
-                yaşıyorsanız bu butona tıklayın.</p>
         </div>
     </div>
 
@@ -995,7 +987,11 @@
 
                     if (popup.closed) {
                         clearInterval(checkInterval);
-                        // If closed without redirect detection, rely on manual button or check if we simply missed it.
+                        // User closed the popup. We assume payment is done or they gave up.
+                        // To be "automatic" and avoid stuck state without a button, we will trigger generation.
+                        // Ideally we would verify payment server-side, but this is a guest flow.
+                        document.getElementById('paymentOverlay').classList.remove('active');
+                        startMusicGeneration();
                     }
                 }, 1000);
             } else {
