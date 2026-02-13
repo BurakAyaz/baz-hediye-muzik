@@ -183,3 +183,10 @@ module.exports = checkCredits;
 module.exports.deductCredit = deductCredit;
 module.exports.refundCredit = refundCredit;
 module.exports.getCreditInfo = getCreditInfo;
+
+// Backwards compatibility for server.js
+module.exports.deductCredits = deductCredit;
+module.exports.refundCredits = refundCredit;
+module.exports.checkDailyLimit = (req, res, next) => next(); // Dummy pass-through for now
+module.exports.CREDIT_COSTS = { generate: 1, extend: 1, cover: 1, lyrics: 1, persona: 1 };
+
