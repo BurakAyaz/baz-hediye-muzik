@@ -1042,7 +1042,9 @@
         }
 
         // ==================== GENERATION ====================
-        function startMusicGeneration() {
+        let currentTransactionId = null;
+
+        async function startMusicGeneration() {
             const pending = JSON.parse(localStorage.getItem('gf_pending_order') || '{}');
             if (!pending.message) return;
 
