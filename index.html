@@ -1132,7 +1132,7 @@
                         pollStatus(json.taskId, orderData);
                     } else {
                         // Still waiting
-                        renderStatusCard('waiting', 'Ödeme Onayı Bekleniyor... (Lütfen Ödemeyi Tamamlayın)');
+                        renderStatusCard('waiting', 'Ödeme Bekleniyor');
                     }
                 } catch (e) {
                     console.error('Webhook poll error', e);
@@ -1186,6 +1186,15 @@
 
         // Helper to render a "Status Card" at the top of the results list
         function renderStatusCard(type, message) {
+            // Ensure section is visible
+            const resultsSection = document.getElementById('resultsSection');
+            if (resultsSection.style.display === 'none') resultsSection.style.display = 'block';
+
+            // Scroll to it on first render
+            if (!document.getElementById('statusCard')) {
+                resultsSection.scrollIntoView({ behavior: 'smooth' });
+            }
+
             const container = document.getElementById('tracksContainer');
             // Remove existing status card if any
             const existing = document.getElementById('statusCard');
@@ -1209,7 +1218,7 @@
                     <div style="flex:1;">
                         <h3 style="font-size:16px; margin-bottom:4px; color:#fff;">${message}</h3>
                         <div style="font-size:12px; color:rgba(255,255,255,0.6);">
-                            ${type === 'waiting' ? 'İşlem tamamlanana kadar bu ekranı kapatmayın.' : 'Bu işlem 1-2 dakika sürebilir.'}
+                            ${type === 'waiting' ? 'Ödeme işlemi bekleniyor. Lütfen ödemeyi tamamlayın.' : 'Bu işlem 1-2 dakika sürebilir.'}
                         </div>
                     </div>
                 </div>
