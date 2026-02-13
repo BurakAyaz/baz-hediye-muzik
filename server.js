@@ -49,8 +49,8 @@ const taskStorage = new Map();
 // ==================== PUBLIC ENDPOINTS ====================
 
 app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'ok', 
+  res.json({
+    status: 'ok',
     timestamp: new Date().toISOString(),
     mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
   });
@@ -124,10 +124,35 @@ app.get('/api/user/stats', auth, async (req, res) => {
 
 // ==================== MUSIC GENERATION ====================
 
+app.get('/api/generate', optionalAuth, async (req, res) => {
+  try {
+    const { taskId } = req.query;
+    if (!taskId) return res.status(400).json({ error: 'Task ID gerekli.' });
+
+    const targetUrl = `${KIE_API_URL}/generate/record-info?taskId=${taskId}`;
+    const response = await axios.get(targetUrl, {
+      headers: { 'Authorization': `Bearer ${API_KEY}`, 'Content-Type': 'application/json' }
+    });
+
+    // Update local storage if we have it
+    if (response.data.code === 200 && response.data.data) {
+      const storedTask = taskStorage.get(taskId) || {};
+      taskStorage.set(taskId, { ...storedTask, ...response.data.data, lastUpdated: new Date().toISOString() });
+    }
+
+    res.json(response.data);
+  } catch (error) {
+    res.status(error.response?.status || 500).json({
+      error: 'Durum sorgulanamadı',
+      message: error.response?.data?.msg || error.message
+    });
+  }
+});
+
 app.post('/api/generate', auth, checkDailyLimit, requireModel, checkCredits('generate'), async (req, res) => {
   try {
     const { model, customMode, instrumental, title, style, prompt, vocalGender, negativeTags,
-            styleWeight, weirdnessConstraint, audioWeight, personaId } = req.body;
+      styleWeight, weirdnessConstraint, audioWeight, personaId } = req.body;
 
     if (!req.user.canUseModel(model)) {
       return res.status(403).json({
@@ -167,7 +192,7 @@ app.post('/api/generate', auth, checkDailyLimit, requireModel, checkCredits('gen
     if (response.data.code === 200) {
       const taskId = response.data.data.taskId;
       const creditResult = await deductCredits(req, taskId);
-      
+
       taskStorage.set(taskId, {
         userId: req.user._id, taskId, status: 'processing',
         createdAt: new Date().toISOString(), ...payload
@@ -225,7 +250,7 @@ app.post('/api/extend', auth, requireFeature('extend'), checkCredits('extend'), 
 app.post('/api/cover', auth, requireFeature('cover'), checkCredits('cover'), async (req, res) => {
   try {
     const { prompt, style, title, instrumental, model, uploadUrl, customMode,
-            vocalGender, negativeTags, styleWeight, weirdnessConstraint, audioWeight, personaId } = req.body;
+      vocalGender, negativeTags, styleWeight, weirdnessConstraint, audioWeight, personaId } = req.body;
 
     if (!uploadUrl) return res.status(400).json({ error: 'Missing uploadUrl' });
 
@@ -297,9 +322,9 @@ app.post('/api/lyrics', auth, async (req, res) => {
     const { taskId, audioId } = req.body;
     if (!taskId || !audioId) return res.status(400).json({ error: 'Missing taskId or audioId' });
 
-    const response = await axios.post(`${KIE_API_URL}/generate/get-timestamped-lyrics`, 
+    const response = await axios.post(`${KIE_API_URL}/generate/get-timestamped-lyrics`,
       { taskId, audioId },
-      { headers: { 'Authorization': `Bearer ${API_KEY}`, 'Content-Type': 'application/json' }}
+      { headers: { 'Authorization': `Bearer ${API_KEY}`, 'Content-Type': 'application/json' } }
     );
     res.json(response.data);
   } catch (error) {
@@ -316,9 +341,9 @@ app.post('/api/persona/generate', auth, requireFeature('persona'), checkCredits(
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    const response = await axios.post(`${KIE_API_URL}/generate/generate-persona`, 
+    const response = await axios.post(`${KIE_API_URL}/generate/generate-persona`,
       { taskId, audioId, name, description },
-      { headers: { 'Authorization': `Bearer ${API_KEY}`, 'Content-Type': 'application/json' }}
+      { headers: { 'Authorization': `Bearer ${API_KEY}`, 'Content-Type': 'application/json' } }
     );
 
     if (response.data.code === 200) {
@@ -367,13 +392,13 @@ app.get('/api/tasks', auth, (req, res) => {
 const verifyWixWebhook = (req, res, next) => {
   const signature = req.headers['x-wix-signature'];
   const webhookSecret = process.env.WIX_WEBHOOK_SECRET;
-  
+
   if (!webhookSecret) return next();
   if (!signature) return res.status(401).json({ error: 'Missing signature' });
-  
+
   const expectedSignature = crypto.createHmac('sha256', webhookSecret)
     .update(JSON.stringify(req.body)).digest('hex');
-  
+
   if (signature !== expectedSignature) return res.status(401).json({ error: 'Invalid signature' });
   next();
 };
@@ -382,7 +407,7 @@ app.post('/api/wix/subscription', verifyWixWebhook, async (req, res) => {
   try {
     const { eventType, data } = req.body;
     console.log(`📨 Wix Webhook: ${eventType}`);
-    
+
     switch (eventType) {
       case 'SUBSCRIPTION_CREATED':
       case 'ORDER_PAID':
@@ -409,7 +434,7 @@ app.post('/api/wix/subscription', verifyWixWebhook, async (req, res) => {
 app.post('/api/wix/member', verifyWixWebhook, async (req, res) => {
   try {
     const { eventType, data } = req.body;
-    
+
     if (eventType === 'MEMBER_CREATED') {
       const existingUser = await User.findByWixId(data.memberId);
       if (!existingUser) {
@@ -435,7 +460,7 @@ app.post('/api/webhook', async (req, res) => {
   try {
     const { taskId, status, audioUrls, error } = req.body;
     console.log('🎵 KIE.ai Webhook:', { taskId, status });
-    
+
     if (taskId && taskStorage.has(taskId)) {
       const task = taskStorage.get(taskId);
       taskStorage.set(taskId, {
@@ -456,9 +481,9 @@ async function handleNewSubscription(data) {
   const { buyerInfo, planId, orderId, validUntil } = data;
   const planMapping = { 'starter-plan': 'starter', 'pro-plan': 'pro', 'enterprise-plan': 'enterprise' };
   const internalPlanId = planMapping[planId] || 'starter';
-  
+
   let user = await User.findByWixId(buyerInfo.memberId);
-  
+
   if (!user) {
     user = await User.createFromWix({ userId: buyerInfo.memberId, email: buyerInfo.email, planId: internalPlanId });
   } else {
@@ -468,7 +493,7 @@ async function handleNewSubscription(data) {
     user.subscriptionExpiry = validUntil ? new Date(validUntil) : null;
     await user.save();
   }
-  
+
   await Transaction.create({
     userId: user._id, type: 'subscription', action: 'subscription_start',
     amount: user.monthlyCredits, balanceAfter: user.credits, wixOrderId: orderId,
@@ -480,10 +505,10 @@ async function handleNewSubscription(data) {
 async function handleCancellation(data) {
   const user = await User.findByWixId(data.buyerInfo.memberId);
   if (!user) return;
-  
+
   user.subscriptionStatus = 'cancelled';
   await user.save();
-  
+
   await Transaction.create({
     userId: user._id, type: 'subscription', action: 'subscription_cancel',
     amount: 0, balanceAfter: user.credits, wixOrderId: data.orderId
@@ -494,12 +519,12 @@ async function handleCancellation(data) {
 async function handleRenewal(data) {
   const user = await User.findByWixId(data.buyerInfo.memberId);
   if (!user) return;
-  
+
   await user.resetMonthlyCredits();
   user.subscriptionStatus = 'active';
   user.subscriptionExpiry = data.validUntil ? new Date(data.validUntil) : null;
   await user.save();
-  
+
   await Transaction.create({
     userId: user._id, type: 'subscription', action: 'subscription_renew',
     amount: user.monthlyCredits, balanceAfter: user.credits, wixOrderId: data.orderId
@@ -510,7 +535,7 @@ async function handleRenewal(data) {
 async function handleExpiration(data) {
   const user = await User.findByWixId(data.buyerInfo.memberId);
   if (!user) return;
-  
+
   await user.updatePlan('free');
   user.subscriptionStatus = 'expired';
   await user.save();
@@ -523,16 +548,16 @@ app.post('/api/admin/reset-monthly-credits', async (req, res) => {
   if (req.headers['x-admin-key'] !== process.env.ADMIN_SECRET_KEY) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
-  
+
   try {
     const oneMonthAgo = new Date();
     oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-    
+
     const usersToReset = await User.find({
       lastCreditReset: { $lt: oneMonthAgo },
       subscriptionStatus: 'active'
     });
-    
+
     let resetCount = 0;
     for (const user of usersToReset) {
       await user.resetMonthlyCredits();
