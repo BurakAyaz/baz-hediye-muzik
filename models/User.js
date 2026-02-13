@@ -51,14 +51,14 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
-  
+
   // Plan bilgileri
   planId: {
     type: String,
     enum: ['none', 'temel', 'uzman', 'pro'],
     default: 'none'
   },
-  
+
   // Kredi sistemi - HER BUTONA BASIŞ = 1 KREDİ
   credits: {
     type: Number,
@@ -73,7 +73,7 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  
+
   // Özellik izinleri
   features: {
     type: [String],
@@ -83,7 +83,7 @@ const userSchema = new mongoose.Schema({
     type: [String],
     default: []
   },
-  
+
   // Abonelik bilgileri
   subscriptionId: String,
   subscriptionStatus: {
@@ -93,7 +93,7 @@ const userSchema = new mongoose.Schema({
   },
   purchasedAt: Date,
   expiresAt: Date,
-  
+
   // İstatistikler
   totalSongsGenerated: {
     type: Number,
@@ -104,13 +104,14 @@ const userSchema = new mongoose.Schema({
 });
 
 // Wix ID ile kullanıcı bul
-userSchema.statics.findByWixId = function(wixUserId) {
+userSchema.statics.findByWixId = function (wixUserId) {
   return this.findOne({ wixUserId });
 };
 
 // Wix'ten yeni kullanıcı oluştur
-userSchema.statics.createFromWix = async function(wixData) {
+userSchema.statics.createFromWix = async function (wixData) {
   const user = new this({
+    _id: wixData.userId, // FORCE MONGODB ID TO MATCH WIX ID
     wixUserId: wixData.userId,
     email: wixData.email,
     displayName: wixData.displayName || '',
@@ -123,10 +124,10 @@ userSchema.statics.createFromWix = async function(wixData) {
 };
 
 // Plan aktifleştir (satın alma sonrası)
-userSchema.methods.activatePlan = function(planId) {
+userSchema.methods.activatePlan = function (planId) {
   const plan = PLAN_CONFIG[planId];
   if (!plan) throw new Error('Geçersiz plan: ' + planId);
-  
+
   this.planId = planId;
   this.credits = plan.credits;
   this.totalCredits = plan.credits;
@@ -135,34 +136,34 @@ userSchema.methods.activatePlan = function(planId) {
   this.allowedModels = plan.allowedModels;
   this.subscriptionStatus = 'active';
   this.purchasedAt = new Date();
-  
+
   // Bitiş tarihini hesapla
   const expiryDate = new Date();
   expiryDate.setMonth(expiryDate.getMonth() + plan.durationMonths);
   this.expiresAt = expiryDate;
-  
+
   return this.save();
 };
 
 // Kredi kullan - HER BUTONA BASIŞ = 1 KREDİ
-userSchema.methods.useCredit = async function() {
+userSchema.methods.useCredit = async function () {
   if (this.credits <= 0) {
     throw new Error('Yetersiz kredi');
   }
-  
+
   if (this.expiresAt && new Date() > this.expiresAt) {
     throw new Error('Paket süresi dolmuş');
   }
-  
+
   this.credits -= 1;
   this.totalUsed += 1;
   this.totalSongsGenerated += 1;
-  
+
   return this.save();
 };
 
 // Kredi iade et (hata durumunda)
-userSchema.methods.refundCredit = async function() {
+userSchema.methods.refundCredit = async function () {
   this.credits += 1;
   this.totalUsed -= 1;
   this.totalSongsGenerated -= 1;
@@ -170,17 +171,17 @@ userSchema.methods.refundCredit = async function() {
 };
 
 // Özellik kontrolü
-userSchema.methods.canUseFeature = function(feature) {
+userSchema.methods.canUseFeature = function (feature) {
   return this.features.includes(feature);
 };
 
 // Model kontrolü
-userSchema.methods.canUseModel = function(model) {
+userSchema.methods.canUseModel = function (model) {
   return this.allowedModels.includes(model);
 };
 
 // Abonelik aktif mi?
-userSchema.methods.isSubscriptionActive = function() {
+userSchema.methods.isSubscriptionActive = function () {
   if (this.subscriptionStatus !== 'active') return false;
   if (this.expiresAt && new Date() > this.expiresAt) return false;
   if (this.credits <= 0) return false;
@@ -188,7 +189,7 @@ userSchema.methods.isSubscriptionActive = function() {
 };
 
 // Kalan gün hesapla
-userSchema.methods.getDaysRemaining = function() {
+userSchema.methods.getDaysRemaining = function () {
   if (!this.expiresAt) return 0;
   const now = new Date();
   const diff = this.expiresAt - now;

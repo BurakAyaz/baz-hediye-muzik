@@ -1081,9 +1081,12 @@
 
             // 1. Initiate Order (Save to DB)
             try {
+                const headers = { 'Content-Type': 'application/json' };
+                if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+
                 const res = await fetch('/api/gift/initiate', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: headers,
                     body: JSON.stringify({ guestInfo: payload.guestInfo, orderData: payload })
                 });
                 const data = await res.json();
