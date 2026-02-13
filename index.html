@@ -620,34 +620,7 @@
     <div class="gf-form-wrapper" id="formWrapper">
         <form id="giftForm" novalidate>
             <!-- Kimlik Bilgileri -->
-            <div class="gf-group">
-                <label class="gf-label">İsim <span class="gf-required">*</span></label>
-                <input type="text" class="gf-input" id="gfName" placeholder="İsminiz..." required>
-                <div class="gf-error-text" id="errName">İsim alanı zorunludur.</div>
-            </div>
 
-            <div class="gf-group">
-                <label class="gf-label">Soyisim <span class="gf-required">*</span></label>
-                <input type="text" class="gf-input" id="gfSurname" placeholder="Soyisminiz..." required>
-                <div class="gf-error-text" id="errSurname">Soyisim alanı zorunludur.</div>
-            </div>
-
-            <div class="gf-group">
-                <label class="gf-label">Telefon <span class="gf-required">*</span></label>
-                <div class="gf-phone-row">
-                    <div class="gf-phone-country">🇹🇷 +90</div>
-                    <input type="tel" class="gf-input" id="gfPhone" placeholder="5xx xxx xx xx" required>
-                </div>
-                <div class="gf-error-text" id="errPhone">Telefon numarası zorunludur.</div>
-            </div>
-
-            <div class="gf-group">
-                <label class="gf-label">E-Posta Adresiniz <span class="gf-required">*</span></label>
-                <input type="email" class="gf-input" id="gfEmail" placeholder="ornek@email.com" required>
-                <div class="gf-error-text" id="errEmail">Geçerli bir e-posta adresi girin.</div>
-            </div>
-
-            <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 30px 0;">
 
             <!-- Bu Hediye Ne İçin? -->
             <div class="gf-group">
@@ -810,7 +783,19 @@
                 </div>
             </div>
 
+            <div class="gf-group">
+                <label class="gf-label">E-Posta Adresiniz (Ödeme ekranındaki emaille aynı olmalı) <span
+                        class="gf-required">*</span></label>
+                <input type="email" class="gf-input" id="gfEmail" placeholder="ornek@email.com" required>
+                <div class="gf-error-text" id="errEmail">Geçerli bir e-posta adresi girin.</div>
+            </div>
+
             <button type="submit" class="gf-submit-btn" id="submitBtn">Ödeme Yap</button>
+
+            <p style="text-align: center; margin-top: 16px; font-size: 13px; color: rgba(255,255,255,0.5);">
+                Destek için: <a href="mailto:support@bazai.co"
+                    style="color: rgba(255,255,255,0.8); text-decoration: underline;">support@bazai.co</a>
+            </p>
         </form>
     </div>
 
@@ -843,6 +828,12 @@
         <div id="tracksContainer"></div>
 
         <button class="gf-new-song-fixed" onclick="showForm()">+ Yeni Şarkı Oluştur</button>
+
+        <p
+            style="text-align: center; margin-top: 40px; margin-bottom: 20px; font-size: 13px; color: rgba(255,255,255,0.5);">
+            Destek için: <a href="mailto:support@bazai.co"
+                style="color: rgba(255,255,255,0.8); text-decoration: underline;">support@bazai.co</a>
+        </p>
     </div>
 
     <!-- TOAST -->
@@ -943,9 +934,9 @@
 
             // Save form data
             const formData = {
-                name: document.getElementById('gfName').value.trim(),
-                surname: document.getElementById('gfSurname').value.trim(),
-                phone: document.getElementById('gfPhone').value.trim(),
+                name: "Misafir",
+                surname: "",
+                phone: "",
                 email: document.getElementById('gfEmail').value.trim(),
                 message: document.getElementById('gfMessage').value.trim(),
                 genre: document.querySelector('input[name="genre"]:checked').value,
@@ -1018,9 +1009,7 @@
                 }
             };
 
-            check('gfName', 'errName');
-            check('gfSurname', 'errSurname');
-            check('gfPhone', 'errPhone');
+
             check('gfEmail', 'errEmail');
             check('gfMessage', 'errMessage');
 
