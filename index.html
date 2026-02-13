@@ -19,6 +19,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
         rel="stylesheet">
+    <script src="https://unpkg.com/browser-id3-writer@4.0.0/dist/browser-id3-writer.min.js"></script>
     <style>
         :root {
             --bg-primary: #5b2c6f;
@@ -1076,7 +1077,11 @@
                 title: `${pending.name} - ${pending.occasion}`,
                 style: stylePrompt,
                 prompt: prompt,
-                callBackUrl: "https://google.com" // Placeholder
+                callBackUrl: "https://google.com", // Placeholder
+                guestInfo: {
+                    name: pending.name + ' ' + pending.surname,
+                    email: pending.email
+                }
             };
 
             // Call API
@@ -1163,11 +1168,12 @@
             const container = document.getElementById('tracksContainer');
             container.innerHTML = '';
 
-            tracks.forEach(track => {
+            tracks.forEach((track, index) => {
                 const audioUrl = track.audio_url || track.audioUrl;
                 const imageUrl = track.image_url || track.imageUrl || track.imageLargeUrl;
                 const title = track.title || 'Hediye Şarkı';
                 const date = new Date(track.generatedAt || Date.now()).toLocaleDateString('tr-TR');
+                const lyrics = track.lyric || track.lyrics || "";
 
                 const div = document.createElement('div');
                 div.className = 'gf-track-card';
@@ -1179,14 +1185,72 @@
                             <div style="font-size:12px; color:rgba(255,255,255,0.6);">${date}</div>
                         </div>
                     </div>
-                    <audio controls src="${audioUrl}"></audio>
+                    
+                    <div style="margin-top:10px;">
+                        <button type="button" class="gf-btn-secondary" style="font-size:12px; padding:4px 8px;" onclick="toggleLyrics(this)">📜 Sözleri Göster</button>
+                        <div class="gf-lyrics-content" style="display:none; margin-top:10px; padding:10px; background:rgba(0,0,0,0.2); border-radius:8px; font-size:13px; line-height:1.6; white-space:pre-wrap; color:rgba(255,255,255,0.8); max-height:200px; overflow-y:auto;">${lyrics || 'Sözler bulunamadı.'}</div>
+                    </div>
+
+                    <audio controls src="${audioUrl}" style="margin-top:15px;"></audio>
                     <div class="gf-track-actions">
-                        <a href="${audioUrl}" download="${title}.mp3" class="gf-btn-secondary" target="_blank">⬇ İndir</a>
+                        <button onclick="downloadWithTags('${audioUrl}', '${imageUrl}', '${title.replace(/'/g, "\\'")}', 'BAZ AI')" class="gf-btn-secondary">⬇ İndir (Kapaklı)</button>
                         <a href="${track.video_url || '#'}" class="gf-btn-secondary" target="_blank" ${!track.video_url ? 'style="display:none"' : ''}>🎬 Video</a>
                     </div>
                 `;
                 container.appendChild(div);
             });
+        }
+
+        function toggleLyrics(btn) {
+            const content = btn.nextElementSibling;
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                btn.textContent = '📜 Sözleri Gizle';
+            } else {
+                content.style.display = 'none';
+                btn.textContent = '📜 Sözleri Göster';
+            }
+        }
+
+        async function downloadWithTags(audioUrl, coverUrl, title, artist) {
+            try {
+                showToast('İndirme hazırlanıyor...', 'info');
+
+                // Fetch Audio
+                const audioRes = await fetch(audioUrl);
+                const audioBlob = await audioRes.blob();
+                const audioBuffer = await audioBlob.arrayBuffer();
+
+                // Fetch Cover
+                const coverRes = await fetch(coverUrl);
+                const coverBlob = await coverRes.blob();
+                const coverBuffer = await coverBlob.arrayBuffer();
+
+                const writer = new ID3Writer(audioBuffer);
+                writer.setFrame('TIT2', title)
+                    .setFrame('TPE1', [artist])
+                    .setFrame('APIC', {
+                        type: 3,
+                        data: coverBuffer,
+                        description: 'Cover'
+                    });
+                writer.addTag();
+
+                const taggedUrl = writer.getURL();
+                const link = document.createElement('a');
+                link.href = taggedUrl;
+                link.download = `${title}.mp3`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(taggedUrl);
+
+                showToast('İndirme başladı!', 'success');
+            } catch (e) {
+                console.error(e);
+                showToast('Etiketleme başarısız, normal indiriliyor...', 'error');
+                window.open(audioUrl, '_blank');
+            }
         }
 
         // ==================== TOAST ====================
