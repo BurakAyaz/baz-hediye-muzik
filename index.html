@@ -24,6 +24,7 @@
             --bg-primary: #5b2c6f;
             --bg-secondary: #4a235a;
             --bg-card: rgba(255, 255, 255, 0.08);
+            /* Transparent card look for purple theme */
             --bg-input: rgba(255, 255, 255, 0.12);
             --bg-hover: rgba(255, 255, 255, 0.18);
             --text-primary: #ffffff;
@@ -33,6 +34,7 @@
             --accent-pink-light: #e879f9;
             --accent-pink-dark: #a21caf;
             --accent-green: #84cc16;
+            /* Lime green from image */
             --border: rgba(255, 255, 255, 0.15);
             --border-focus: #d946ef;
             --success: #22c55e;
@@ -54,253 +56,238 @@
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: linear-gradient(135deg, #6a1b9a 0%, #4a148c 100%);
+            /* Deep purple gradient */
             color: var(--text-primary);
             line-height: 1.5;
         }
 
         /* ==================== SCROLLBAR ==================== */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.1); }
-        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
 
-        /* ==================== HEADER ==================== */
-        .gf-header {
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        /* ==================== HERO ==================== */
+        .gf-hero {
+            text-align: center;
+            padding: 48px 20px 24px;
+        }
+
+        .gf-hero h1 {
+            font-size: clamp(28px, 6vw, 48px);
+            font-weight: 900;
+            color: #fff;
+            line-height: 1.15;
+            margin-bottom: 12px;
             display: flex;
-            justify-content: flex-end;
             align-items: center;
-            padding: 10px 20px;
-            background: rgba(0, 0, 0, 0.25);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1002;
+            justify-content: center;
             gap: 12px;
         }
 
-        .gf-header-left {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-right: auto;
+        .gf-hero h1 img {
+            height: 48px;
+            width: auto;
         }
 
-        .gf-header-left img { height: 28px; width: auto; }
-        .gf-header-left span { font-weight: 700; font-size: 16px; }
-
-        .gf-login-btn {
-            padding: 8px 20px;
-            background: linear-gradient(135deg, var(--accent-pink), var(--accent-pink-dark));
-            color: #fff;
-            border: none;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
+        .gf-hero p {
+            font-size: clamp(14px, 3vw, 17px);
+            color: var(--text-secondary);
+            max-width: 460px;
+            margin: 0 auto;
         }
-
-        .gf-login-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
-
-        .gf-credit-display {
-            display: none;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 14px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 20px;
-            font-size: 13px;
-        }
-
-        .gf-credit-icon { font-size: 16px; }
-        .gf-credit-count { font-weight: 700; color: var(--accent-pink-light); }
-
-        .gf-plan-badge {
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 11px;
-            font-weight: 600;
-            background: rgba(217, 70, 239, 0.2);
-            color: var(--accent-pink-light);
-        }
-
-        .gf-plan-badge.pro { background: rgba(234, 179, 8, 0.2); color: #fbbf24; }
-        .gf-plan-badge.uzman { background: rgba(139, 92, 246, 0.2); color: #a78bfa; }
-        .gf-plan-badge.temel { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
-
-        .gf-days-left { font-size: 11px; color: rgba(255, 255, 255, 0.6); }
-        .gf-days-left.warning { color: #f59e0b; }
-        .gf-days-left.danger { color: #ef4444; }
-
-        .gf-user-menu { display: none; position: relative; }
-
-        .gf-user-btn {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 12px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 20px;
-            color: #fff;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.2s;
-        }
-
-        .gf-user-btn:hover { background: rgba(255, 255, 255, 0.18); }
-
-        .gf-user-avatar {
-            width: 28px; height: 28px; border-radius: 50%;
-            background: linear-gradient(135deg, var(--accent-pink), var(--accent-pink-dark));
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 700; font-size: 13px;
-        }
-
-        .gf-user-dropdown {
-            display: none;
-            position: absolute;
-            right: 0;
-            top: calc(100% + 8px);
-            background: rgba(30, 10, 40, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 12px;
-            min-width: 180px;
-            overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-        }
-
-        .gf-user-dropdown.active { display: block; }
-
-        .gf-dropdown-item {
-            display: block; padding: 12px 16px; color: #fff; font-size: 13px;
-            cursor: pointer; transition: background 0.2s; border: none; background: none;
-            width: 100%; text-align: left; text-decoration: none;
-        }
-
-        .gf-dropdown-item:hover { background: rgba(255, 255, 255, 0.1); }
-        .gf-dropdown-item.danger { color: #ef4444; }
-
-        /* ==================== CREDIT WARNING ==================== */
-        .gf-credit-warning {
-            display: none;
-            max-width: 600px;
-            margin: 12px auto;
-            padding: 14px 20px;
-            background: rgba(239, 68, 68, 0.15);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            border-radius: 12px;
-            text-align: center;
-            font-size: 14px;
-            color: #fca5a5;
-        }
-
-        .gf-credit-warning.active { display: block; }
-
-        .gf-credit-warning a {
-            display: inline-block; margin-top: 8px; padding: 8px 20px;
-            background: linear-gradient(135deg, var(--accent-pink), var(--accent-pink-dark));
-            color: #fff; border-radius: 20px; font-weight: 600; font-size: 13px;
-            text-decoration: none; transition: all 0.2s;
-        }
-
-        .gf-credit-warning a:hover { filter: brightness(1.1); }
-
-        /* ==================== HERO ==================== */
-        .gf-hero { text-align: center; padding: 48px 20px 24px; }
-
-        .gf-hero h1 {
-            font-size: clamp(28px, 6vw, 48px); font-weight: 900; color: #fff;
-            line-height: 1.15; margin-bottom: 12px;
-            display: flex; align-items: center; justify-content: center; gap: 12px;
-        }
-
-        .gf-hero h1 img { height: 48px; width: auto; }
-        .gf-hero p { font-size: clamp(14px, 3vw, 17px); color: var(--text-secondary); max-width: 460px; margin: 0 auto; }
 
         /* ==================== FORM CONTAINER ==================== */
         .gf-form-wrapper {
-            max-width: 600px; margin: 0 auto; padding: 16px 20px 60px;
-            background: rgba(0, 0, 0, 0.2); border-radius: 20px;
-            backdrop-filter: blur(10px); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 16px 20px 60px;
+            background: rgba(0, 0, 0, 0.2);
+            /* Slight darkening behind form */
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
 
         /* ==================== FORM GROUPS ==================== */
-        .gf-group { margin-bottom: 24px; }
-
-        .gf-label { display: block; font-size: 15px; font-weight: 600; color: var(--text-primary); margin-bottom: 10px; }
-        .gf-label .gf-required { color: var(--accent-pink-light); margin-left: 2px; }
-
-        .gf-input, .gf-textarea {
-            width: 100%; padding: 14px 16px; background: var(--bg-input);
-            border: 1px solid var(--border); border-radius: 12px;
-            color: var(--text-primary); font-size: 15px; font-family: inherit;
-            transition: all 0.2s; outline: none;
+        .gf-group {
+            margin-bottom: 24px;
         }
 
-        .gf-input:focus, .gf-textarea:focus {
-            border-color: var(--accent-pink); background: rgba(255, 255, 255, 0.16);
+        .gf-label {
+            display: block;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+
+        .gf-label .gf-required {
+            color: var(--accent-pink-light);
+            margin-left: 2px;
+        }
+
+        .gf-input,
+        .gf-textarea {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        .gf-input:focus,
+        .gf-textarea:focus {
+            border-color: var(--accent-pink);
+            background: rgba(255, 255, 255, 0.16);
             box-shadow: 0 0 0 3px rgba(217, 70, 239, 0.2);
         }
 
-        .gf-input::placeholder, .gf-textarea::placeholder { color: rgba(255, 255, 255, 0.5); }
-        .gf-textarea { resize: vertical; min-height: 100px; }
-        .gf-hint { font-size: 13px; color: rgba(255, 255, 255, 0.6); margin-top: 6px; }
-
-        .gf-phone-row { display: flex; gap: 8px; }
-
-        .gf-phone-country {
-            display: flex; align-items: center; gap: 6px; padding: 0 12px;
-            background: var(--bg-input); border: 1px solid var(--border); border-radius: 12px;
-            font-size: 15px; color: var(--text-primary); white-space: nowrap; flex-shrink: 0;
+        .gf-input::placeholder,
+        .gf-textarea::placeholder {
+            color: rgba(255, 255, 255, 0.5);
         }
 
-        .gf-phone-row .gf-input { flex: 1; }
+        .gf-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .gf-hint {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 6px;
+        }
+
+        /* Phone input */
+        .gf-phone-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .gf-phone-country {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 12px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 15px;
+            color: var(--text-primary);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .gf-phone-row .gf-input {
+            flex: 1;
+        }
 
         /* ==================== RADIO GRID (GENRE) ==================== */
-        .gf-radio-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .gf-radio-card { position: relative; }
+        .gf-radio-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .gf-radio-card {
+            position: relative;
+        }
 
         .gf-radio-card input[type="radio"] {
-            position: absolute; opacity: 0; cursor: pointer; inset: 0; z-index: 2;
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            inset: 0;
+            z-index: 2;
         }
 
         .gf-radio-card-content {
-            display: flex; align-items: center; padding: 12px 16px;
-            background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
-            transition: all 0.2s; height: 100%; cursor: pointer;
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            transition: all 0.2s;
+            height: 100%;
+            cursor: pointer;
         }
 
         .gf-radio-card input[type="radio"]:checked+.gf-radio-card-content {
-            background: rgba(217, 70, 239, 0.15); border-color: var(--accent-pink);
+            background: rgba(217, 70, 239, 0.15);
+            border-color: var(--accent-pink);
             box-shadow: 0 0 0 2px rgba(217, 70, 239, 0.3);
         }
 
-        .gf-radio-card-content span { font-size: 15px; font-weight: 500; }
+        .gf-radio-card-content span {
+            font-size: 15px;
+            font-weight: 500;
+        }
 
         /* ==================== OCCASION GRID ==================== */
-        .gf-occasion-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; }
+        .gf-occasion-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 10px;
+        }
 
         .gf-occasion-card {
-            position: relative; background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: 12px; overflow: hidden; transition: all 0.2s; aspect-ratio: 1;
+            position: relative;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.2s;
+            aspect-ratio: 1;
+            /* Square cards */
         }
 
         .gf-occasion-card input[type="radio"] {
-            position: absolute; opacity: 0; inset: 0; cursor: pointer; z-index: 2;
+            position: absolute;
+            opacity: 0;
+            inset: 0;
+            cursor: pointer;
+            z-index: 2;
         }
 
         .gf-occasion-content {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            height: 100%; padding: 8px; text-align: center; gap: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 8px;
+            text-align: center;
+            gap: 6px;
         }
 
-        .gf-occasion-icon { font-size: 20px; }
-        .gf-occasion-text { font-size: 11px; font-weight: 500; line-height: 1.2; }
+        .gf-occasion-icon {
+            font-size: 20px;
+        }
+
+        .gf-occasion-text {
+            font-size: 11px;
+            font-weight: 500;
+            line-height: 1.2;
+        }
 
         .gf-occasion-card input[type="radio"]:checked+.gf-occasion-content {
             background: linear-gradient(135deg, rgba(217, 70, 239, 0.2), rgba(162, 28, 175, 0.2));
@@ -313,209 +300,312 @@
 
         /* ==================== FILE UPLOAD ==================== */
         .gf-upload-zone {
-            border: 2px dashed rgba(255, 255, 255, 0.3); border-radius: 12px;
-            padding: 32px 20px; text-align: center; cursor: pointer;
-            transition: all 0.2s; background: rgba(255, 255, 255, 0.05);
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            padding: 32px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: rgba(255, 255, 255, 0.05);
         }
 
-        .gf-upload-zone:hover, .gf-upload-zone.dragover {
-            border-color: var(--accent-pink); background: rgba(255, 255, 255, 0.1);
+        .gf-upload-zone:hover,
+        .gf-upload-zone.dragover {
+            border-color: var(--accent-pink);
+            background: rgba(255, 255, 255, 0.1);
         }
 
-        .gf-upload-icon { font-size: 32px; margin-bottom: 8px; opacity: 0.8; }
-        .gf-upload-text { font-size: 14px; color: rgba(255, 255, 255, 0.8); }
+        .gf-upload-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+            opacity: 0.8;
+        }
+
+        .gf-upload-text {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
 
         .gf-upload-preview {
-            display: none; align-items: center; gap: 12px; padding: 12px;
-            background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border);
-            border-radius: 10px; margin-top: 10px;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-top: 10px;
         }
 
-        .gf-upload-preview.active { display: flex; }
-        .gf-upload-preview img { width: 48px; height: 48px; object-fit: cover; border-radius: 6px; }
+        .gf-upload-preview.active {
+            display: flex;
+        }
+
+        .gf-upload-preview img {
+            width: 48px;
+            height: 48px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
 
         .gf-upload-preview .gf-file-name {
-            flex: 1; font-size: 13px; color: #fff;
-            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+            flex: 1;
+            font-size: 13px;
+            color: #fff;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .gf-upload-preview .gf-file-remove {
-            width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
-            background: rgba(239, 68, 68, 0.3); border: none; color: #fff;
-            border-radius: 6px; cursor: pointer; transition: background 0.2s;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(239, 68, 68, 0.3);
+            border: none;
+            color: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
         }
 
-        .gf-upload-preview .gf-file-remove:hover { background: rgba(239, 68, 68, 0.6); }
+        .gf-upload-preview .gf-file-remove:hover {
+            background: rgba(239, 68, 68, 0.6);
+        }
 
         /* ==================== SUBMIT BUTTON ==================== */
         .gf-submit-btn {
-            width: 100%; padding: 18px 24px;
+            width: 100%;
+            padding: 18px 24px;
             background: linear-gradient(135deg, #84cc16, #65a30d);
-            color: #fff; border: none; border-radius: 14px;
-            font-size: 18px; font-weight: 700; cursor: pointer; transition: all 0.3s;
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            margin-top: 32px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            /* Lime Green */
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 32px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
         }
 
-        .gf-submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(132, 204, 22, 0.4); filter: brightness(1.1); }
-        .gf-submit-btn:active { transform: translateY(0); }
-        .gf-submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+        .gf-submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(132, 204, 22, 0.4);
+            filter: brightness(1.1);
+        }
+
+        .gf-submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .gf-submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
 
         /* ==================== ERROR TEXT ==================== */
-        .gf-error-text { color: #fca5a5; font-size: 12px; margin-top: 5px; display: none; font-weight: 500; }
-        .gf-error-text.visible { display: block; }
-        .gf-field-error { border-color: #ef4444 !important; box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25) !important; }
-
-        /* ==================== OVERLAYS & RESULTS ==================== */
-        .gf-overlay {
-            display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(8px); z-index: 5000; align-items: center;
-            justify-content: center; flex-direction: column; padding: 20px;
+        .gf-error-text {
+            color: #fca5a5;
+            /* Lighter red for visibility on purple */
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+            font-weight: 500;
         }
 
-        .gf-overlay.active { display: flex; }
+        .gf-error-text.visible {
+            display: block;
+        }
 
-        .gf-overlay-content { text-align: center; max-width: 400px; color: #fff; }
+        .gf-field-error {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25) !important;
+        }
+
+        /* ==================== GENERATION & RESULTS ==================== */
+        .gf-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 5000;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .gf-overlay.active {
+            display: flex;
+        }
+
+        .gf-overlay-content {
+            text-align: center;
+            max-width: 400px;
+            color: #fff;
+        }
 
         .gf-spinner {
-            width: 48px; height: 48px; border: 4px solid rgba(255, 255, 255, 0.2);
-            border-top-color: var(--accent-pink); border-radius: 50%;
-            animation: spin 1s linear infinite; margin: 0 auto 20px;
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-top-color: var(--accent-pink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
         }
 
-        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
 
-        .gf-results-container { display: none; max-width: 600px; margin: 0 auto; padding: 20px; }
-        .gf-results-container.active { display: block; }
+        .gf-results-container {
+            display: none;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .gf-results-container.active {
+            display: block;
+        }
 
         .gf-user-email-display {
-            background: rgba(255, 255, 255, 0.1); padding: 12px; border-radius: 10px;
-            text-align: center; margin-bottom: 24px; font-size: 14px;
-            color: rgba(255, 255, 255, 0.9); border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 24px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .gf-track-card {
-            background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px; padding: 20px; margin-bottom: 20px; backdrop-filter: blur(5px);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(5px);
         }
 
-        .gf-track-card audio { width: 100%; margin-top: 10px; border-radius: 8px; }
+        .gf-track-card audio {
+            width: 100%;
+            margin-top: 10px;
+            border-radius: 8px;
+        }
 
-        .gf-track-actions { display: flex; gap: 10px; margin-top: 16px; }
+        .gf-track-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
 
         .gf-btn-secondary {
-            flex: 1; padding: 12px; background: rgba(255, 255, 255, 0.1);
-            color: #fff; border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 10px; font-weight: 600; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            text-decoration: none; transition: all 0.2s;
+            flex: 1;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.2s;
         }
 
-        .gf-btn-secondary:hover { background: rgba(255, 255, 255, 0.2); }
+        .gf-btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
 
         .gf-new-song-fixed {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            padding: 14px 28px; background: var(--accent-pink); color: white;
-            border-radius: 30px; border: none; font-weight: 700;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); cursor: pointer;
-            transition: all 0.2s; z-index: 100;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 14px 28px;
+            background: var(--accent-pink);
+            color: white;
+            border-radius: 30px;
+            border: none;
+            font-weight: 700;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.2s;
+            z-index: 100;
         }
 
-        .gf-new-song-fixed:hover { transform: translateX(-50%) scale(1.05); }
+        .gf-new-song-fixed:hover {
+            transform: translateX(-50%) scale(1.05);
+        }
 
         /* Toast */
         .gf-toast {
-            position: fixed; bottom: 30px; left: 50%;
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
             transform: translateX(-50%) translateY(100px);
-            background: #ef4444; color: white; padding: 14px 24px;
-            border-radius: 12px; font-weight: 600; z-index: 9999; transition: transform 0.3s;
+            background: #ef4444;
+            color: white;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            z-index: 9999;
+            transition: transform 0.3s;
         }
 
-        .gf-toast.show { transform: translateX(-50%) translateY(0); }
-        .gf-toast.success { background: #22c55e; }
-
-        /* Login Modal */
-        .gf-login-modal {
-            display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(8px); z-index: 6000; align-items: center;
-            justify-content: center; padding: 20px;
+        .gf-toast.show {
+            transform: translateX(-50%) translateY(0);
         }
 
-        .gf-login-modal.active { display: flex; }
-
-        .gf-login-modal-content {
-            background: rgba(30, 10, 50, 0.95); border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 20px; padding: 40px 30px; max-width: 400px; width: 100%; text-align: center;
-        }
-
-        .gf-login-modal-content h2 { font-size: 22px; margin-bottom: 12px; }
-        .gf-login-modal-content p { font-size: 14px; color: rgba(255, 255, 255, 0.7); margin-bottom: 24px; }
-
-        .gf-login-modal-content button {
-            width: 100%; padding: 14px 24px;
-            background: linear-gradient(135deg, var(--accent-pink), var(--accent-pink-dark));
-            color: #fff; border: none; border-radius: 12px;
-            font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-bottom: 12px;
-        }
-
-        .gf-login-modal-content button:hover { filter: brightness(1.1); }
-        .gf-login-modal-content .gf-close-modal { background: rgba(255, 255, 255, 0.1); font-size: 14px; }
-
-        .gf-timer {
-            font-size: 24px; font-weight: 700; color: var(--accent-pink-light);
-            margin-top: 16px; font-variant-numeric: tabular-nums;
+        .gf-toast.success {
+            background: #22c55e;
         }
 
         @media (max-width: 600px) {
-            .gf-radio-grid { grid-template-columns: 1fr; }
-            .gf-occasion-grid { grid-template-columns: repeat(4, 1fr); gap: 6px; }
-            .gf-occasion-icon { font-size: 16px; }
-            .gf-occasion-text { font-size: 9px; }
-            .gf-hero h1 { font-size: 32px; }
-            .gf-header { padding: 8px 12px; gap: 6px; }
-            .gf-credit-display { font-size: 11px; padding: 4px 10px; }
-            .gf-user-btn { padding: 4px 8px; font-size: 12px; }
+            .gf-radio-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .gf-occasion-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 6px;
+            }
+
+            .gf-occasion-icon {
+                font-size: 16px;
+            }
+
+            .gf-occasion-text {
+                font-size: 9px;
+            }
+
+            .gf-hero h1 {
+                font-size: 32px;
+            }
         }
     </style>
 </head>
 
 <body>
-    <!-- HEADER -->
-    <header class="gf-header">
-        <div class="gf-header-left">
-            <img src="/favicon.ico" alt="BAZ AI">
-            <span>BAZ AI</span>
-        </div>
-
-        <div class="gf-credit-display" id="creditDisplay">
-            <span class="gf-credit-icon">💎</span>
-            <span class="gf-credit-count" id="creditCount">0</span>
-            <span class="gf-plan-badge" id="planBadge">-</span>
-            <span class="gf-days-left" id="daysLeft"></span>
-        </div>
-
-        <div class="gf-user-menu" id="userMenu">
-            <div class="gf-user-btn" onclick="toggleUserDropdown()">
-                <div class="gf-user-avatar" id="userAvatar">?</div>
-                <span id="userName">Kullanıcı</span>
-            </div>
-            <div class="gf-user-dropdown" id="userDropdown">
-                <button class="gf-dropdown-item" onclick="showAccountInfo()">📊 Hesap Bilgileri</button>
-                <a class="gf-dropdown-item" href="https://app.bazai.co/planlar" target="_blank">📦 Paketler</a>
-                <button class="gf-dropdown-item danger" onclick="logout()">🚪 Çıkış Yap</button>
-            </div>
-        </div>
-
-        <button class="gf-login-btn" id="loginBtn" onclick="showLoginModal()"><span>Başlat</span></button>
-    </header>
-
-    <!-- Credit Warning -->
-    <div class="gf-credit-warning" id="creditWarning">
-        ⚠️ Şarkı oluşturmak için kredi gereklidir.
-        <br>
-        <a href="https://app.bazai.co/planlar" target="_blank" id="creditWarningBtn">📦 Paket Al</a>
-    </div>
-
     <!-- HERO -->
     <section class="gf-hero" id="heroSection">
         <h1>
@@ -528,6 +618,7 @@
     <!-- FORM -->
     <div class="gf-form-wrapper" id="formWrapper">
         <form id="giftForm" novalidate>
+            <!-- Kimlik Bilgileri -->
             <div class="gf-group">
                 <label class="gf-label">İsim <span class="gf-required">*</span></label>
                 <input type="text" class="gf-input" id="gfName" placeholder="İsminiz..." required>
@@ -561,14 +652,62 @@
             <div class="gf-group">
                 <label class="gf-label">Bu hediye ne için? <span class="gf-required">*</span></label>
                 <div class="gf-occasion-grid">
-                    <label class="gf-occasion-card"><input type="radio" name="occasion" value="Doğum Günü"><div class="gf-occasion-content"><span class="gf-occasion-icon">🎂</span><span class="gf-occasion-text">Doğum Günü</span></div></label>
-                    <label class="gf-occasion-card"><input type="radio" name="occasion" value="Yıldönümü"><div class="gf-occasion-content"><span class="gf-occasion-icon">💍</span><span class="gf-occasion-text">Yıldönümü</span></div></label>
-                    <label class="gf-occasion-card"><input type="radio" name="occasion" value="Sevgililer Günü"><div class="gf-occasion-content"><span class="gf-occasion-icon">💝</span><span class="gf-occasion-text">Sevgililer Günü</span></div></label>
-                    <label class="gf-occasion-card"><input type="radio" name="occasion" value="Anneler Günü"><div class="gf-occasion-content"><span class="gf-occasion-icon">🌷</span><span class="gf-occasion-text">Anneler Günü</span></div></label>
-                    <label class="gf-occasion-card"><input type="radio" name="occasion" value="Babalar Günü"><div class="gf-occasion-content"><span class="gf-occasion-icon">👔</span><span class="gf-occasion-text">Babalar Günü</span></div></label>
-                    <label class="gf-occasion-card"><input type="radio" name="occasion" value="Tebrikler"><div class="gf-occasion-content"><span class="gf-occasion-icon">🎉</span><span class="gf-occasion-text">Tebrikler</span></div></label>
-                    <label class="gf-occasion-card"><input type="radio" name="occasion" value="Geçmiş Olsun"><div class="gf-occasion-content"><span class="gf-occasion-icon">❤️‍🩹</span><span class="gf-occasion-text">Geçmiş Olsun</span></div></label>
-                    <label class="gf-occasion-card"><input type="radio" name="occasion" value="İçimden Geldi"><div class="gf-occasion-content"><span class="gf-occasion-icon">✨</span><span class="gf-occasion-text">İçimden Geldi</span></div></label>
+                    <label class="gf-occasion-card">
+                        <input type="radio" name="occasion" value="Doğum Günü">
+                        <div class="gf-occasion-content">
+                            <span class="gf-occasion-icon">🎂</span>
+                            <span class="gf-occasion-text">Doğum Günü</span>
+                        </div>
+                    </label>
+                    <label class="gf-occasion-card">
+                        <input type="radio" name="occasion" value="Yıldönümü">
+                        <div class="gf-occasion-content">
+                            <span class="gf-occasion-icon">💍</span>
+                            <span class="gf-occasion-text">Yıldönümü</span>
+                        </div>
+                    </label>
+                    <label class="gf-occasion-card">
+                        <input type="radio" name="occasion" value="Sevgililer Günü">
+                        <div class="gf-occasion-content">
+                            <span class="gf-occasion-icon">💝</span>
+                            <span class="gf-occasion-text">Sevgililer Günü</span>
+                        </div>
+                    </label>
+                    <label class="gf-occasion-card">
+                        <input type="radio" name="occasion" value="Anneler Günü">
+                        <div class="gf-occasion-content">
+                            <span class="gf-occasion-icon">🌷</span>
+                            <span class="gf-occasion-text">Anneler Günü</span>
+                        </div>
+                    </label>
+                    <label class="gf-occasion-card">
+                        <input type="radio" name="occasion" value="Babalar Günü">
+                        <div class="gf-occasion-content">
+                            <span class="gf-occasion-icon">👔</span>
+                            <span class="gf-occasion-text">Babalar Günü</span>
+                        </div>
+                    </label>
+                    <label class="gf-occasion-card">
+                        <input type="radio" name="occasion" value="Tebrikler">
+                        <div class="gf-occasion-content">
+                            <span class="gf-occasion-icon">🎉</span>
+                            <span class="gf-occasion-text">Tebrikler</span>
+                        </div>
+                    </label>
+                    <label class="gf-occasion-card">
+                        <input type="radio" name="occasion" value="Geçmiş Olsun">
+                        <div class="gf-occasion-content">
+                            <span class="gf-occasion-icon">❤️‍🩹</span>
+                            <span class="gf-occasion-text">Geçmiş Olsun</span>
+                        </div>
+                    </label>
+                    <label class="gf-occasion-card">
+                        <input type="radio" name="occasion" value="İçimden Geldi">
+                        <div class="gf-occasion-content">
+                            <span class="gf-occasion-icon">✨</span>
+                            <span class="gf-occasion-text">İçimden Geldi</span>
+                        </div>
+                    </label>
                 </div>
                 <div class="gf-error-text" id="errOccasion">Lütfen bir seçenek işaretleyin.</div>
             </div>
@@ -576,14 +715,28 @@
             <!-- Kimin İçin? -->
             <div class="gf-group">
                 <label class="gf-label">Kimin için bu hediye? <span class="gf-required">*</span></label>
-                <div class="gf-radio-grid" id="recipientGroup">
-                    <label class="gf-radio-card"><input type="radio" name="recipient" value="Eşime"><div class="gf-radio-card-content"><span>Eşime</span></div></label>
-                    <label class="gf-radio-card"><input type="radio" name="recipient" value="Sevgiliye"><div class="gf-radio-card-content"><span>Sevgiliye</span></div></label>
-                    <label class="gf-radio-card"><input type="radio" name="recipient" value="Anneme"><div class="gf-radio-card-content"><span>Anneme</span></div></label>
-                    <label class="gf-radio-card"><input type="radio" name="recipient" value="Babama"><div class="gf-radio-card-content"><span>Babama</span></div></label>
-                    <label class="gf-radio-card"><input type="radio" name="recipient" value="Çocuğuma"><div class="gf-radio-card-content"><span>Çocuğuma</span></div></label>
-                    <label class="gf-radio-card"><input type="radio" name="recipient" value="Arkadaşıma"><div class="gf-radio-card-content"><span>Arkadaşıma</span></div></label>
-                    <label class="gf-radio-card"><input type="radio" name="recipient" value="Diğer"><div class="gf-radio-card-content"><span>Diğer</span></div></label>
+                <div class="gf-radio-grid id=recipientGroup">
+                    <label class="gf-radio-card"><input type="radio" name="recipient" value="Eşime">
+                        <div class="gf-radio-card-content"><span>Eşime</span></div>
+                    </label>
+                    <label class="gf-radio-card"><input type="radio" name="recipient" value="Sevgiliye">
+                        <div class="gf-radio-card-content"><span>Sevgiliye</span></div>
+                    </label>
+                    <label class="gf-radio-card"><input type="radio" name="recipient" value="Anneme">
+                        <div class="gf-radio-card-content"><span>Anneme</span></div>
+                    </label>
+                    <label class="gf-radio-card"><input type="radio" name="recipient" value="Babama">
+                        <div class="gf-radio-card-content"><span>Babama</span></div>
+                    </label>
+                    <label class="gf-radio-card"><input type="radio" name="recipient" value="Çocuğuma">
+                        <div class="gf-radio-card-content"><span>Çocuğuma</span></div>
+                    </label>
+                    <label class="gf-radio-card"><input type="radio" name="recipient" value="Arkadaşıma">
+                        <div class="gf-radio-card-content"><span>Arkadaşıma</span></div>
+                    </label>
+                    <label class="gf-radio-card"><input type="radio" name="recipient" value="Diğer">
+                        <div class="gf-radio-card-content"><span>Diğer</span></div>
+                    </label>
                 </div>
                 <div class="gf-error-text" id="errRecipient">Lütfen bir kişi seçin.</div>
             </div>
@@ -592,26 +745,52 @@
             <div class="gf-group">
                 <label class="gf-label">Müzik Türünü Seç <span class="gf-required">*</span></label>
                 <div class="gf-radio-grid" id="genreGroup">
-                    <label class="gf-radio-card"><input type="radio" name="genre" value="Pop"><div class="gf-radio-card-content"><span>Pop</span></div></label>
-                    <label class="gf-radio-card"><input type="radio" name="genre" value="T-Pop"><div class="gf-radio-card-content"><span>Türkçe Pop</span></div></label>
-                    <label class="gf-radio-card"><input type="radio" name="genre" value="Arabesk"><div class="gf-radio-card-content"><span>Arabesk</span></div></label>
-                    <label class="gf-radio-card"><input type="radio" name="genre" value="Anadolu Rock"><div class="gf-radio-card-content"><span>Anadolu Rock</span></div></label>
-                    <label class="gf-radio-card"><input type="radio" name="genre" value="Sanat Müziği"><div class="gf-radio-card-content"><span>Sanat Müziği</span></div></label>
-                    <label class="gf-radio-card"><input type="radio" name="genre" value="Özgün Müzik"><div class="gf-radio-card-content"><span>Özgün Müzik</span></div></label>
-                    <label class="gf-radio-card"><input type="radio" name="genre" value="Halay"><div class="gf-radio-card-content"><span>Halay / Oyun Havası</span></div></label>
-                    <label class="gf-radio-card"><input type="radio" name="genre" value="Rap"><div class="gf-radio-card-content"><span>Rap</span></div></label>
-                    <label class="gf-radio-card"><input type="radio" name="genre" value="Rock"><div class="gf-radio-card-content"><span>Rock</span></div></label>
-                    <label class="gf-radio-card"><input type="radio" name="genre" value="Jazz"><div class="gf-radio-card-content"><span>Jazz</span></div></label>
-                    <label class="gf-radio-card"><input type="radio" name="genre" value="Blues"><div class="gf-radio-card-content"><span>Blues</span></div></label>
-                    <label class="gf-radio-card"><input type="radio" name="genre" value="Klasik"><div class="gf-radio-card-content"><span>Klasik</span></div></label>
+                    <label class="gf-radio-card"><input type="radio" name="genre" value="Pop">
+                        <div class="gf-radio-card-content"><span>Pop</span></div>
+                    </label>
+                    <label class="gf-radio-card"><input type="radio" name="genre" value="T-Pop">
+                        <div class="gf-radio-card-content"><span>Türkçe Pop</span></div>
+                    </label>
+                    <label class="gf-radio-card"><input type="radio" name="genre" value="Arabesk">
+                        <div class="gf-radio-card-content"><span>Arabesk</span></div>
+                    </label>
+                    <label class="gf-radio-card"><input type="radio" name="genre" value="Anadolu Rock">
+                        <div class="gf-radio-card-content"><span>Anadolu Rock</span></div>
+                    </label>
+                    <label class="gf-radio-card"><input type="radio" name="genre" value="Sanat Müziği">
+                        <div class="gf-radio-card-content"><span>Sanat Müziği</span></div>
+                    </label>
+                    <label class="gf-radio-card"><input type="radio" name="genre" value="Özgün Müzik">
+                        <div class="gf-radio-card-content"><span>Özgün Müzik</span></div>
+                    </label>
+                    <label class="gf-radio-card"><input type="radio" name="genre" value="Halay">
+                        <div class="gf-radio-card-content"><span>Halay / Oyun Havası</span></div>
+                    </label>
+                    <label class="gf-radio-card"><input type="radio" name="genre" value="Rap">
+                        <div class="gf-radio-card-content"><span>Rap</span></div>
+                    </label>
+                    <label class="gf-radio-card"><input type="radio" name="genre" value="Rock">
+                        <div class="gf-radio-card-content"><span>Rock</span></div>
+                    </label>
+                    <label class="gf-radio-card"><input type="radio" name="genre" value="Jazz">
+                        <div class="gf-radio-card-content"><span>Jazz</span></div>
+                    </label>
+                    <label class="gf-radio-card"><input type="radio" name="genre" value="Blues">
+                        <div class="gf-radio-card-content"><span>Blues</span></div>
+                    </label>
+                    <label class="gf-radio-card"><input type="radio" name="genre" value="Klasik">
+                        <div class="gf-radio-card-content"><span>Klasik</span></div>
+                    </label>
                 </div>
                 <div class="gf-error-text" id="errGenre">Lütfen bir müzik türü seçin.</div>
             </div>
 
             <!-- Şarkı Mesajı -->
             <div class="gf-group">
-                <label class="gf-label">Şarkıda geçmesini istediğin kelimeler var mı? Şarkıyı hediye edeceğin kişinin ismi nedir? <span class="gf-required">*</span></label>
-                <textarea class="gf-textarea" id="gfMessage" placeholder="Örn: Ayşe, seni çok seviyorum. Doğum günün kutlu olsun. Birlikte geçirdiğimiz her an çok kıymetli..."></textarea>
+                <label class="gf-label">Şarkıda geçmesini istediğin kelimeler var mı? Şarkıyı hediye edeceğin kişinin
+                    ismi nedir? <span class="gf-required">*</span></label>
+                <textarea class="gf-textarea" id="gfMessage"
+                    placeholder="Örn: Ayşe, seni çok seviyorum. Doğum günün kutlu olsun. Birlikte geçirdiğimiz her an çok kıymetli..."></textarea>
                 <div class="gf-error-text" id="errMessage">Bu alan zorunludur.</div>
             </div>
 
@@ -630,7 +809,7 @@
                 </div>
             </div>
 
-            <button type="submit" class="gf-submit-btn" id="submitBtn">🎵 Şarkı Oluştur</button>
+            <button type="submit" class="gf-submit-btn" id="submitBtn">Ödeme Yap</button>
         </form>
     </div>
 
@@ -649,305 +828,46 @@
             <div class="gf-spinner"></div>
             <h2>Şarkınız Hazırlanıyor...</h2>
             <p id="genStatusText">Sıraya alındı...</p>
-            <div class="gf-timer" id="genTimer">00:00</div>
-            <p style="margin-top:10px; font-size:13px; color:rgba(255,255,255,0.6)">Bu işlem ortalama 1-5 dakika sürebilir.</p>
+            <p style="margin-top:10px; font-size:13px; color:rgba(255,255,255,0.6)">Bu işlem ortalama 1-2 dakika
+                sürebilir.</p>
         </div>
     </div>
 
     <!-- RESULTS PAGE -->
     <div class="gf-results-container" id="resultsSection">
         <div class="gf-user-email-display" id="userEmailDisplay"></div>
-        <h2 style="text-align:center; margin-bottom:20px; color:#fff;">🎵 Şarkılarınız</h2>
-        <div id="tracksContainer"></div>
-        <button class="gf-new-song-fixed" onclick="showForm()">+ Yeni Şarkı Oluştur</button>
-    </div>
 
-    <!-- Login Modal -->
-    <div class="gf-login-modal" id="loginModal">
-        <div class="gf-login-modal-content">
-            <h2>🎵 BAZ AI'ya Hoş Geldin!</h2>
-            <p>Hediye şarkı oluşturmak için BAZ hesabınızla giriş yapın.</p>
-            <button onclick="redirectToWixLogin()">Başlat / Kayıt Ol</button>
-            <button class="gf-close-modal" onclick="closeLoginModal()">Kapat</button>
-        </div>
+        <h2 style="text-align:center; margin-bottom:20px; color:#fff;">🎵 Şarkılarınız</h2>
+
+        <div id="tracksContainer"></div>
+
+        <button class="gf-new-song-fixed" onclick="showForm()">+ Yeni Şarkı Oluştur</button>
     </div>
 
     <!-- TOAST -->
     <div class="gf-toast" id="toast"></div>
 
     <script>
-        // ==================== CONFIG ====================
-        var WIX_SITE_URL = 'https://air.bazai.co';
-        var WIX_LOGIN_URL = WIX_SITE_URL;
-        var WIX_PRICING_URL = 'https://app.bazai.co/planlar';
-        var CREDIT_CHECK_INTERVAL = 60000;
+        // ==================== AUTH & INIT ====================
+        let authToken = localStorage.getItem('bazai_token') || null;
+        let coverFile = null;
+        let coverDataUrl = null;
 
-        // ==================== STATE ====================
-        var authToken = localStorage.getItem('bazai_token') || null;
-        var currentUser = null;
-        var userCredits = 0;
-        var userPlan = 'none';
-        var isLoggedIn = false;
-        var creditsLoaded = false;
-        var coverFile = null;
-        var coverDataUrl = null;
-        var creditCheckIntervalId = null;
-        var genTimerInterval = null;
-        var savedTracks = [];
-
-        // ==================== FETCH OVERRIDE (Auth header ekleme) ====================
-        var originalFetch = window.fetch;
-        window.fetch = function (url, options) {
-            options = options || {};
-            if (typeof url === 'string' && url.startsWith('/api/') && authToken) {
-                options.headers = options.headers || {};
-                if (!options.headers['Authorization']) {
-                    options.headers['Authorization'] = 'Bearer ' + authToken;
-                }
-            }
-            return originalFetch.call(window, url, options);
-        };
-
-        // ==================== INIT ====================
-        document.addEventListener('DOMContentLoaded', async function () {
-            await checkAuthStatus();
-
-            if (!isLoggedIn && !authToken) {
-                if (checkWixCookie()) {
-                    startCookieMonitoring();
-                    setTimeout(function () { autoLoginIfWixCookie(); }, 500);
-                } else {
-                    setTimeout(function () {
-                        if (!isLoggedIn && !authToken) {
-                            window.location.href = WIX_LOGIN_URL;
-                        }
-                    }, 100);
-                }
-            } else if (isLoggedIn) {
-                startCookieMonitoring();
-            }
-
+        document.addEventListener('DOMContentLoaded', function () {
+            // Check stored results
             loadStoredResults();
+
+            // Check payment return
+            var isReturn = localStorage.getItem('gf_payment_check');
+            if (isReturn) {
+                localStorage.removeItem('gf_payment_check');
+                // Assume success if redirected back here after payment
+                // In real scenario, verify via API. Here we just trigger generation.
+                startMusicGeneration();
+            }
         });
 
-        // ==================== AUTH ====================
-        async function checkAuthStatus() {
-            var urlParams = new URLSearchParams(window.location.search);
-            var tokenFromUrl = urlParams.get('token');
-
-            if (tokenFromUrl) {
-                authToken = tokenFromUrl;
-                localStorage.setItem('bazai_token', tokenFromUrl);
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
-
-            if (authToken) {
-                await syncUserData();
-            } else {
-                showLoggedOutState();
-            }
-        }
-
-        async function syncUserData() {
-            try {
-                var response = await fetch('/api/auth-sync', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken }
-                });
-
-                if (!response.ok) {
-                    if (response.status === 401) { logout(); return; }
-                    throw new Error('Sync failed');
-                }
-
-                var data = await response.json();
-
-                if (data.success && data.user) {
-                    currentUser = data.user;
-                    userCredits = data.user.credits || data.user.available || 0;
-                    userPlan = data.user.planId || data.user.plan || 'none';
-                    isLoggedIn = true;
-                    creditsLoaded = true;
-
-                    showLoggedInState();
-                    updateCreditDisplay();
-                    checkCreditWarning();
-                    startCreditCheck();
-                    await loadUserData();
-                } else {
-                    showLoggedOutState();
-                }
-            } catch (error) {
-                console.error('User sync error:', error);
-                showLoggedOutState();
-            }
-        }
-
-        async function refreshCredits() {
-            try {
-                var response = await fetch('/api/auth-sync', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken }
-                });
-                if (response.ok) {
-                    var data = await response.json();
-                    if (data.success && data.user) {
-                        userCredits = data.user.credits || data.user.available || 0;
-                        userPlan = data.user.planId || data.user.plan || 'none';
-                        currentUser = data.user;
-                        creditsLoaded = true;
-                        updateCreditDisplay();
-                        checkCreditWarning();
-                    }
-                }
-            } catch (error) { console.log('Kredi yenileme hatası:', error); }
-        }
-
-        function startCreditCheck() {
-            if (creditCheckIntervalId) clearInterval(creditCheckIntervalId);
-            creditCheckIntervalId = setInterval(function () {
-                if (isLoggedIn && authToken) refreshCredits();
-            }, CREDIT_CHECK_INTERVAL);
-        }
-
-        // ==================== USER DATA (MongoDB) ====================
-        async function loadUserData() {
-            if (!authToken) { savedTracks = JSON.parse(localStorage.getItem('bazai_tracks') || '[]'); return; }
-            try {
-                var response = await fetch('/api/user-data', {
-                    method: 'GET',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken }
-                });
-                if (response.ok) {
-                    var data = await response.json();
-                    if (data.success) {
-                        savedTracks = data.tracks || [];
-                        localStorage.setItem('bazai_tracks', JSON.stringify(savedTracks));
-                    }
-                }
-            } catch (error) { savedTracks = JSON.parse(localStorage.getItem('bazai_tracks') || '[]'); }
-        }
-
-        async function saveTrackToMongoDB(track) {
-            if (!authToken) return;
-            try {
-                await fetch('/api/user-data', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken },
-                    body: JSON.stringify({ action: 'addTrack', track: track })
-                });
-            } catch (e) { console.log('Track kaydetme hatası:', e); }
-        }
-
-        // ==================== WIX COOKIE ====================
-        function checkWixCookie() {
-            try {
-                var cookies = document.cookie;
-                var wixCookies = ['svSession', 'wixSession2', 'XSRF-TOKEN', '_wixCIDX', '_wixAB3'];
-                var found = false;
-                wixCookies.forEach(function (c) { if (cookies.indexOf(c + '=') !== -1) found = true; });
-                return found;
-            } catch (e) { return false; }
-        }
-
-        function autoLoginIfWixCookie() {
-            if (checkWixCookie() && !isLoggedIn && !authToken) redirectToWixLogin();
-        }
-
-        function startCookieMonitoring() {
-            setInterval(function () {
-                if (!isLoggedIn && !authToken && checkWixCookie()) autoLoginIfWixCookie();
-            }, 10000);
-        }
-
-        // ==================== UI STATE ====================
-        function showLoggedInState() {
-            document.getElementById('loginBtn').style.display = 'none';
-            document.getElementById('creditDisplay').style.display = 'flex';
-            document.getElementById('userMenu').style.display = 'block';
-            if (currentUser) {
-                var name = currentUser.displayName || (currentUser.email ? currentUser.email.split('@')[0] : 'Kullanıcı');
-                document.getElementById('userName').textContent = name;
-                document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
-            }
-        }
-
-        function showLoggedOutState() {
-            isLoggedIn = false; currentUser = null; userCredits = 0; userPlan = 'none'; creditsLoaded = false;
-            document.getElementById('loginBtn').style.display = 'flex';
-            document.getElementById('creditDisplay').style.display = 'none';
-            document.getElementById('userMenu').style.display = 'none';
-            checkCreditWarning();
-        }
-
-        function updateCreditDisplay() {
-            var creditCount = document.getElementById('creditCount');
-            var planBadge = document.getElementById('planBadge');
-            var daysLeft = document.getElementById('daysLeft');
-            creditCount.textContent = userCredits;
-            if (userCredits <= 5) creditCount.style.color = '#ef4444';
-            else if (userCredits <= 15) creditCount.style.color = '#f59e0b';
-            else creditCount.style.color = '#e879f9';
-
-            var planNames = { 'none': 'Ücretsiz', 'temel': 'Temel', 'uzman': 'Uzman', 'pro': 'Pro', 'deneme': 'Deneme', 'test': 'Test', 'free': 'Ücretsiz' };
-            planBadge.textContent = planNames[userPlan] || userPlan;
-            planBadge.className = 'gf-plan-badge ' + userPlan;
-
-            if (currentUser && currentUser.daysRemaining !== undefined) {
-                var days = currentUser.daysRemaining;
-                if (days > 0) { daysLeft.textContent = days + ' gün kaldı'; daysLeft.className = 'gf-days-left' + (days <= 7 ? ' warning' : ''); }
-                else if (userPlan !== 'none' && userPlan !== 'free') { daysLeft.textContent = 'Süre doldu!'; daysLeft.className = 'gf-days-left danger'; }
-                else { daysLeft.textContent = ''; }
-            } else { daysLeft.textContent = ''; }
-        }
-
-        function checkCreditWarning() {
-            var warning = document.getElementById('creditWarning');
-            var submitBtn = document.getElementById('submitBtn');
-            var warningBtn = document.getElementById('creditWarningBtn');
-            var showWarning = false;
-
-            if (!isLoggedIn) { showWarning = true; warningBtn.innerHTML = '📦 Paket Al'; warningBtn.href = WIX_PRICING_URL; }
-            else if (userCredits <= 0) { showWarning = true; warningBtn.innerHTML = '📦 Paket Al'; warningBtn.href = WIX_PRICING_URL; }
-            else if (currentUser && currentUser.daysRemaining !== undefined && currentUser.daysRemaining <= 0 && userPlan !== 'none' && userPlan !== 'free') {
-                showWarning = true; warningBtn.innerHTML = '📦 Paketi Yenile'; warningBtn.href = WIX_PRICING_URL;
-            }
-
-            if (showWarning) { warning.classList.add('active'); if (submitBtn) submitBtn.disabled = true; }
-            else { warning.classList.remove('active'); if (submitBtn) submitBtn.disabled = false; }
-        }
-
-        // ==================== LOGIN / LOGOUT ====================
-        function showLoginModal() { document.getElementById('loginModal').classList.add('active'); }
-        function closeLoginModal() { document.getElementById('loginModal').classList.remove('active'); }
-
-        function redirectToWixLogin() {
-            var returnUrl = encodeURIComponent(window.location.href);
-            window.location.href = WIX_LOGIN_URL + '?returnUrl=' + returnUrl;
-        }
-
-        function toggleUserDropdown() { document.getElementById('userDropdown').classList.toggle('active'); }
-
-        function logout() {
-            authToken = null;
-            localStorage.removeItem('bazai_token');
-            showLoggedOutState();
-            closeLoginModal();
-        }
-
-        function showAccountInfo() {
-            var info = 'Plan: ' + (userPlan || '-').toUpperCase() + '\nKredi: ' + userCredits + '\nEmail: ' + (currentUser && currentUser.email ? currentUser.email : '-');
-            alert(info);
-            document.getElementById('userDropdown').classList.remove('active');
-        }
-
-        document.addEventListener('click', function (e) {
-            var dropdown = document.getElementById('userDropdown');
-            var userBtn = document.querySelector('.gf-user-btn');
-            if (dropdown && userBtn && !userBtn.contains(e.target) && !dropdown.contains(e.target)) dropdown.classList.remove('active');
-        });
-
-        // ==================== PAGE VIEWS ====================
+        // ==================== UI LOGIC ====================
         function showForm() {
             document.getElementById('resultsSection').classList.remove('active');
             document.getElementById('formWrapper').style.display = 'block';
@@ -961,17 +881,33 @@
             document.getElementById('heroSection').style.display = 'none';
             window.scrollTo(0, 0);
 
+            // Update email display
             var email = document.getElementById('gfEmail').value;
-            if (!email) { try { email = JSON.parse(localStorage.getItem('gf_pending_order') || '{}').email; } catch (e) { } }
-            if (!email && currentUser) email = currentUser.email;
+            if (!email) {
+                try {
+                    var pending = JSON.parse(localStorage.getItem('gf_pending_order') || '{}');
+                    email = pending.email;
+                } catch (e) { }
+            }
+            if (!email) {
+                try {
+                    var history = JSON.parse(localStorage.getItem('gf_track_history') || '[]');
+                    if (history.length > 0 && history[0].orderEmail) email = history[0].orderEmail;
+                } catch (e) { }
+            }
 
             var display = document.getElementById('userEmailDisplay');
-            if (email) { display.innerHTML = '📧 Sonuçlar <b>' + email + '</b> adresine de gönderilecektir.'; display.style.display = 'block'; }
-            else { display.style.display = 'none'; }
+            if (email) {
+                display.innerHTML = '📧 Sonuçlar <b>' + email + '</b> adresine de gönderilecektir.';
+                display.style.display = 'block';
+            } else {
+                display.style.display = 'none';
+            }
         }
 
         // ==================== FILE UPLOAD ====================
-        var coverInput = document.getElementById('coverInput');
+        const coverInput = document.getElementById('coverInput');
+
         coverInput.addEventListener('change', function (e) {
             if (e.target.files && e.target.files[0]) handleFile(e.target.files[0]);
         });
@@ -979,7 +915,7 @@
         function handleFile(file) {
             if (!file.type.startsWith('image/')) return;
             coverFile = file;
-            var reader = new FileReader();
+            const reader = new FileReader();
             reader.onload = function (e) {
                 coverDataUrl = e.target.result;
                 document.getElementById('previewImg').src = coverDataUrl;
@@ -997,21 +933,15 @@
         }
 
         // ==================== FORM SUBMIT ====================
-        document.getElementById('giftForm').addEventListener('submit', async function (e) {
+        document.getElementById('giftForm').addEventListener('submit', function (e) {
             e.preventDefault();
-            if (!validateForm()) { showToast('Lütfen zorunlu alanları doldurun.', 'error'); return; }
-
-            if (!isLoggedIn) { showLoginModal(); return; }
-
-            try { await refreshCredits(); } catch (e) { }
-
-            if (userCredits <= 0) {
-                showToast('Yetersiz kredi. Lütfen paket satın alın.', 'error');
-                checkCreditWarning();
+            if (!validateForm()) {
+                showToast('Lütfen zorunlu alanları doldurun.', 'error');
                 return;
             }
 
-            var formData = {
+            // Save form data
+            const formData = {
                 name: document.getElementById('gfName').value.trim(),
                 surname: document.getElementById('gfSurname').value.trim(),
                 phone: document.getElementById('gfPhone').value.trim(),
@@ -1025,36 +955,87 @@
             };
 
             localStorage.setItem('gf_pending_order', JSON.stringify(formData));
-            startMusicGeneration();
+
+            // Start Payment
+            const paymentUrl = 'https://iyzi.link/AKefpw';
+            const popup = window.open(paymentUrl, 'payment', 'width=500,height=700');
+
+            if (popup) {
+                document.getElementById('paymentOverlay').classList.add('active');
+                const checkInterval = setInterval(() => {
+                    if (popup.closed) {
+                        clearInterval(checkInterval);
+                        document.getElementById('paymentOverlay').classList.remove('active');
+                        // Check if we should assume success? 
+                        // Cross-origin prevents reading URL unless on same domain result page
+                        // For this implementation, we rely on user manually closing popup implies done? No.
+                        // We rely on URL polling if possible, or redirect based logic.
+                        // Since we can't reliably know, check URL poller below:
+                    }
+                    try {
+                        if (popup.location.href.includes('iyzi.link/result/')) {
+                            clearInterval(checkInterval);
+                            popup.close();
+                            document.getElementById('paymentOverlay').classList.remove('active');
+                            startMusicGeneration();
+                        }
+                    } catch (e) { }
+                }, 1000);
+            } else {
+                // Popup blocked
+                localStorage.setItem('gf_payment_check', 'true');
+                window.location.href = paymentUrl;
+            }
         });
 
         function validateForm() {
-            var valid = true;
-            var check = function (id, errId) {
-                var el = document.getElementById(id);
-                if (!el.value.trim()) { el.classList.add('gf-field-error'); document.getElementById(errId).classList.add('visible'); valid = false; }
-                else { el.classList.remove('gf-field-error'); document.getElementById(errId).classList.remove('visible'); }
-            };
-            check('gfName', 'errName'); check('gfSurname', 'errSurname'); check('gfPhone', 'errPhone'); check('gfEmail', 'errEmail'); check('gfMessage', 'errMessage');
+            let valid = true;
 
-            var checkRadio = function (name, errId) {
-                if (!document.querySelector('input[name="' + name + '"]:checked')) { document.getElementById(errId).classList.add('visible'); valid = false; }
-                else { document.getElementById(errId).classList.remove('visible'); }
+            // Helper
+            const check = (id, errId) => {
+                const el = document.getElementById(id);
+                if (!el.value.trim()) {
+                    el.classList.add('gf-field-error');
+                    document.getElementById(errId).classList.add('visible');
+                    valid = false;
+                } else {
+                    el.classList.remove('gf-field-error');
+                    document.getElementById(errId).classList.remove('visible');
+                }
             };
-            checkRadio('occasion', 'errOccasion'); checkRadio('genre', 'errGenre'); checkRadio('recipient', 'errRecipient');
+
+            check('gfName', 'errName');
+            check('gfSurname', 'errSurname');
+            check('gfPhone', 'errPhone');
+            check('gfEmail', 'errEmail');
+            check('gfMessage', 'errMessage');
+
+            // Radios
+            const checkRadio = (name, errId) => {
+                if (!document.querySelector(`input[name="${name}"]:checked`)) {
+                    document.getElementById(errId).classList.add('visible');
+                    valid = false;
+                } else {
+                    document.getElementById(errId).classList.remove('visible');
+                }
+            };
+
+            checkRadio('occasion', 'errOccasion');
+            checkRadio('genre', 'errGenre');
+            checkRadio('recipient', 'errRecipient');
+
             return valid;
         }
 
-        // ==================== GENERATION (uses /api/proxy + /api/status) ====================
+        // ==================== GENERATION ====================
         function startMusicGeneration() {
-            var pending = JSON.parse(localStorage.getItem('gf_pending_order') || '{}');
+            const pending = JSON.parse(localStorage.getItem('gf_pending_order') || '{}');
             if (!pending.message) return;
 
             document.getElementById('generatingOverlay').classList.add('active');
-            document.getElementById('genStatusText').textContent = 'Sıraya alındı...';
-            startGenTimer();
 
-            var genreMap = {
+            // Genre Mapping
+            const genreMap = {
                 'Pop': 'Pop, Catchy, Melodic, Turkish Pop',
                 'T-Pop': 'Turkish Pop, Upbeat, Catchy, Modern, Summer Hit',
                 'Arabesk': 'Turkish Arabesque, Emotional, Strings, Melancholic, Deep Vocals',
@@ -1069,168 +1050,132 @@
                 'Klasik': 'Classical, Orchestral, Piano, Violin, Cinematic'
             };
 
-            var stylePrompt = genreMap[pending.genre] || pending.genre + ', Turkish Music';
-            var prompt = 'A Turkish song for ' + pending.recipient + ' about ' + pending.occasion + '. \n\nContext & Keywords to include: "' + pending.message + '" \n\nLanguage: Turkish \nMood: ' + stylePrompt;
+            const stylePrompt = genreMap[pending.genre] || pending.genre + ", Turkish Music";
 
-            var payload = {
-                model: 'V5',
+            // Construct prompt for optimal results
+            // We give instructions in English to the model for better adherence, but specify Turkish language for output.
+            let prompt = `A ${pending.id ? 'Turkish' : 'Turkish'} song for ${pending.recipient} about ${pending.occasion}. \n\nContext & Keywords to include: "${pending.message}" \n\nLanguage: Turkish \nMood: ${stylePrompt}`;
+
+            const payload = {
+                model: "V5",
                 customMode: true,
                 instrumental: false,
-                title: pending.name + ' - ' + pending.occasion,
+                title: `${pending.name} - ${pending.occasion}`,
                 style: stylePrompt,
                 prompt: prompt,
-                callBackUrl: 'https://google.com'
+                callBackUrl: "https://google.com" // Placeholder
             };
 
-            fetch('/api/proxy', {
+            // Call API
+            fetch('/api/generate?type=song', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken },
                 body: JSON.stringify(payload)
             })
-            .then(function (res) {
-                if (res.status === 403) {
-                    return res.json().then(function (data) {
-                        if (data.code === 'NO_CREDITS' || data.error === 'Yetersiz kredi') {
-                            userCredits = 0; creditsLoaded = true; updateCreditDisplay(); checkCreditWarning();
-                            throw new Error('Yetersiz kredi. Lütfen paket satın alın.');
-                        }
-                        throw new Error(data.error || data.msg || 'Hata');
-                    });
-                }
-                return res.json();
-            })
-            .then(function (data) {
-                var taskId = data.data ? data.data.taskId : data.taskId;
-                if (!taskId) throw new Error('Task ID alınamadı');
-                pollStatus(taskId, pending);
-            })
-            .catch(function (err) {
-                stopGenTimer();
-                document.getElementById('generatingOverlay').classList.remove('active');
-                showToast('Hata: ' + err.message, 'error');
-            });
+                .then(res => res.json())
+                .then(data => {
+                    const taskId = data.data ? data.data.taskId : data.taskId;
+                    if (!taskId) throw new Error('Task ID alınamadı');
+                    pollStatus(taskId, pending);
+                })
+                .catch(err => {
+                    document.getElementById('generatingOverlay').classList.remove('active');
+                    showToast('Hata: ' + err.message, 'error');
+                });
         }
 
         function pollStatus(taskId, orderData) {
-            var attempts = 0;
-            var interval = setInterval(async function () {
-                attempts++;
+            const interval = setInterval(async () => {
                 try {
-                    var res = await fetch('/api/status?taskId=' + taskId);
-                    var json = await res.json();
-                    var data = json.data;
-                    if (!data) return;
+                    const res = await fetch('/api/generate?taskId=' + taskId);
+                    const json = await res.json();
+                    const data = json.data;
 
-                    if (data.status === 'SUCCESS') {
-                        clearInterval(interval); stopGenTimer();
-                        document.getElementById('generatingOverlay').classList.remove('active');
+                    if (data) {
+                        if (data.status === 'SUCCESS') {
+                            clearInterval(interval);
+                            document.getElementById('generatingOverlay').classList.remove('active');
 
-                        var sunoData = data.response ? data.response.sunoData : null;
-                        if (sunoData && sunoData.length > 0) {
-                            var newTracks = sunoData.map(function (t) {
-                                return {
-                                    id: taskId + '_' + (t.id || ''),
-                                    taskId: taskId,
-                                    audioId: t.id || '',
-                                    audioUrl: t.audioUrl || t.audio_url,
-                                    coverUrl: t.imageUrl || t.image_url || t.imageLargeUrl,
-                                    title: t.title || orderData.name + ' - ' + orderData.occasion,
-                                    duration: Math.round(t.duration || 0),
-                                    model: 'V5', mode: 'create',
-                                    generatedAt: Date.now(),
-                                    orderEmail: orderData.email,
-                                    addedAt: new Date().toISOString()
-                                };
-                            });
+                            // Add result to storage
+                            const newTracks = data.response.sunoData.map(t => ({
+                                ...t,
+                                generatedAt: Date.now(),
+                                orderEmail: orderData.email
+                            }));
 
-                            newTracks.forEach(function (track) {
-                                var exists = savedTracks.find(function (st) { return st.id === track.id; });
-                                if (!exists) { savedTracks.push(track); saveTrackToMongoDB(track); }
-                            });
-                            localStorage.setItem('bazai_tracks', JSON.stringify(savedTracks));
                             saveTracks(newTracks);
                             showResults();
-                            refreshCredits();
+                        } else if (data.status === 'FAILED' || data.status === 'error') {
+                            clearInterval(interval);
+                            document.getElementById('generatingOverlay').classList.remove('active');
+                            showToast('Oluşturma başarısız oldu.', 'error');
+                        } else {
+                            // Update status text
+                            if (data.status === 'TEXT_SUCCESS') document.getElementById('genStatusText').textContent = 'Sözler yazılıyor...';
+                            else if (data.status === 'First_SUCCESS') document.getElementById('genStatusText').textContent = 'Melodi oluşturuluyor...';
                         }
-                    } else if (['FAILED', 'GENERATE_AUDIO_FAILED', 'CREATE_TASK_FAILED', 'SENSITIVE_WORD_ERROR'].indexOf(data.status) !== -1) {
-                        clearInterval(interval); stopGenTimer();
-                        document.getElementById('generatingOverlay').classList.remove('active');
-                        showToast(data.status === 'SENSITIVE_WORD_ERROR' ? 'Hassas kelime tespit edildi.' : 'Oluşturma başarısız oldu.', 'error');
-                    } else {
-                        if (data.status === 'TEXT_SUCCESS') document.getElementById('genStatusText').textContent = 'Sözler yazılıyor...';
-                        else if (data.status === 'FIRST_SUCCESS' || data.status === 'First_SUCCESS') document.getElementById('genStatusText').textContent = 'Melodi oluşturuluyor...';
-                        else if (data.status === 'PENDING') document.getElementById('genStatusText').textContent = 'Sırada bekleniyor...';
                     }
-                } catch (e) { console.error('Poll error:', e); }
-            }, 5000);
+                } catch (e) { }
+            }, 4000);
         }
-
-        // ==================== TIMER ====================
-        function startGenTimer() {
-            var seconds = 0;
-            var timerEl = document.getElementById('genTimer');
-            timerEl.textContent = '00:00';
-            genTimerInterval = setInterval(function () {
-                seconds++;
-                var m = Math.floor(seconds / 60); var s = seconds % 60;
-                timerEl.textContent = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
-            }, 1000);
-        }
-
-        function stopGenTimer() { if (genTimerInterval) { clearInterval(genTimerInterval); genTimerInterval = null; } }
 
         // ==================== RESULTS STORAGE & DISPLAY ====================
         function saveTracks(newTracks) {
-            var history = JSON.parse(localStorage.getItem('gf_track_history') || '[]');
-            history = newTracks.concat(history);
+            let history = JSON.parse(localStorage.getItem('gf_track_history') || '[]');
+            history = [...newTracks, ...history]; // Prepend new
             localStorage.setItem('gf_track_history', JSON.stringify(history));
             renderTracks(history);
         }
 
         function loadStoredResults() {
-            var history = JSON.parse(localStorage.getItem('gf_track_history') || '[]');
+            const history = JSON.parse(localStorage.getItem('gf_track_history') || '[]');
             if (history.length > 0) renderTracks(history);
         }
 
         function renderTracks(tracks) {
-            var container = document.getElementById('tracksContainer');
+            const container = document.getElementById('tracksContainer');
             container.innerHTML = '';
-            tracks.forEach(function (track) {
-                var audioUrl = track.audioUrl || track.audio_url;
-                var imageUrl = track.coverUrl || track.imageUrl || track.image_url || track.imageLargeUrl || '';
-                var title = track.title || 'Hediye Şarkı';
-                var date = new Date(track.generatedAt || track.addedAt || Date.now()).toLocaleDateString('tr-TR');
 
-                var div = document.createElement('div');
+            tracks.forEach(track => {
+                const audioUrl = track.audio_url || track.audioUrl;
+                const imageUrl = track.image_url || track.imageUrl || track.imageLargeUrl;
+                const title = track.title || 'Hediye Şarkı';
+                const date = new Date(track.generatedAt || Date.now()).toLocaleDateString('tr-TR');
+
+                const div = document.createElement('div');
                 div.className = 'gf-track-card';
-                div.innerHTML =
-                    '<div style="display:flex; gap:16px; align-items:center;">' +
-                    (imageUrl ? '<img src="' + imageUrl + '" style="width:64px; height:64px; border-radius:8px; object-fit:cover;">' : '') +
-                    '<div style="flex:1;"><h3 style="font-size:16px; margin-bottom:4px; color:#fff;">' + title + '</h3>' +
-                    '<div style="font-size:12px; color:rgba(255,255,255,0.6);">' + date + '</div></div></div>' +
-                    '<audio controls src="' + audioUrl + '"></audio>' +
-                    '<div class="gf-track-actions">' +
-                    '<a href="' + audioUrl + '" download="' + title + '.mp3" class="gf-btn-secondary" target="_blank">⬇ İndir</a>' +
-                    (track.video_url ? '<a href="' + track.video_url + '" class="gf-btn-secondary" target="_blank">🎬 Video</a>' : '') +
-                    '</div>';
+                div.innerHTML = `
+                    <div style="display:flex; gap:16px; align-items:center;">
+                        <img src="${imageUrl}" style="width:64px; height:64px; border-radius:8px; object-fit:cover;">
+                        <div style="flex:1;">
+                            <h3 style="font-size:16px; margin-bottom:4px; color:#fff;">${title}</h3>
+                            <div style="font-size:12px; color:rgba(255,255,255,0.6);">${date}</div>
+                        </div>
+                    </div>
+                    <audio controls src="${audioUrl}"></audio>
+                    <div class="gf-track-actions">
+                        <a href="${audioUrl}" download="${title}.mp3" class="gf-btn-secondary" target="_blank">⬇ İndir</a>
+                        <a href="${track.video_url || '#'}" class="gf-btn-secondary" target="_blank" ${!track.video_url ? 'style="display:none"' : ''}>🎬 Video</a>
+                    </div>
+                `;
                 container.appendChild(div);
             });
         }
 
         // ==================== TOAST ====================
         function showToast(msg, type) {
-            var t = document.getElementById('toast');
+            const t = document.getElementById('toast');
             t.textContent = msg;
-            t.className = 'gf-toast ' + (type || '');
+            t.className = `gf-toast ${type}`;
             t.classList.add('show');
-            setTimeout(function () { t.classList.remove('show'); }, 3000);
+            setTimeout(() => t.classList.remove('show'), 3000);
         }
 
         // Input error clearing
-        document.querySelectorAll('input, textarea').forEach(function (el) {
+        document.querySelectorAll('input, textarea').forEach(el => {
             el.addEventListener('input', function () {
                 this.classList.remove('gf-field-error');
-                var err = this.parentElement.querySelector('.gf-error-text');
+                const err = this.parentElement.querySelector('.gf-error-text');
                 if (err) err.classList.remove('visible');
             });
         });

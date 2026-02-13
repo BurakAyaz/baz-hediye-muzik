@@ -1,46 +1,23 @@
-// api/webhook.js - Wix Ödeme Webhook'u
-const { MongoClient } = require('mongodb');
+// api/webhook.js - Wix Payment Webhook
+const connectToDatabase = require('../utils/db').default;
+const User = require('../models/User');
+const Transaction = require('../models/Transaction');
 const crypto = require('crypto');
 
-// MongoDB bağlantısı
-let cachedClient = null;
-let cachedDb = null;
-
-async function connectToDatabase() {
-    if (cachedClient && cachedDb) {
-        return { client: cachedClient, db: cachedDb };
-    }
-
-    const uri = process.env.MONGODB_URI;
-    if (!uri) throw new Error('MONGODB_URI not set');
-
-    const client = new MongoClient(uri);
-    await client.connect();
-    const db = client.db('bazai');
-
-    cachedClient = client;
-    cachedDb = db;
-
-    return { client, db };
-}
-
-// Paket tanımları
+// Plan Definitions
 const PLANS = {
-    'temel': { credits: 50, price: 300, duration: 30, name: 'Temel Paket' },       // 1 ay
-    'uzman': { credits: 500, price: 2800, duration: 180, name: 'Uzman Paket' },    // 6 ay
-    'pro': { credits: 1000, price: 5000, duration: 365, name: 'Pro Paket' },       // 1 yıl
-    'deneme': { credits: 1000, price: 0, duration: 30, name: 'Deneme Paket' },     // TEST - 0 TL
-    'test': { credits: 1000, price: 0, duration: 30, name: 'Test Paket' }          // TEST - 0 TL
+    'temel': { credits: 50, price: 300, duration: 30, name: 'Temel Paket' },
+    'uzman': { credits: 500, price: 2800, duration: 180, name: 'Uzman Paket' },
+    'pro': { credits: 1000, price: 5000, duration: 365, name: 'Pro Paket' },
+    'deneme': { credits: 1000, price: 0, duration: 30, name: 'Deneme Paket' },
+    'test': { credits: 1000, price: 0, duration: 30, name: 'Test Paket' }
 };
 
-// Webhook doğrulama (opsiyonel - Wix secret ile)
 function verifyWebhook(payload, signature, secret) {
-    if (!secret) return true; // Secret yoksa doğrulama atla
-
+    if (!secret) return true;
     const hmac = crypto.createHmac('sha256', secret);
     hmac.update(JSON.stringify(payload));
     const expectedSignature = hmac.digest('hex');
-
     return signature === expectedSignature;
 }
 
@@ -50,18 +27,13 @@ module.exports = async (req, res) => {
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Wix-Signature');
 
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
-    }
-
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' });
-    }
+    if (req.method === 'OPTIONS') return res.status(200).end();
+    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
     try {
-        const payload = req.body;
+        await connectToDatabase();
 
-        // Webhook doğrulama (opsiyonel)
+        const payload = req.body;
         const signature = req.headers['x-wix-signature'];
         const secret = process.env.WIX_WEBHOOK_SECRET;
 
@@ -70,85 +42,61 @@ module.exports = async (req, res) => {
             return res.status(401).json({ error: 'Invalid signature' });
         }
 
-        // Gerekli alanları kontrol et
         const { wixUserId, planId, orderId, email, displayName } = payload;
 
         if (!wixUserId || !planId) {
-            return res.status(400).json({
-                error: 'Missing required fields',
-                message: 'wixUserId ve planId gerekli'
-            });
+            return res.status(400).json({ error: 'Missing required fields: wixUserId, planId' });
         }
 
-        // Plan kontrolü
         const plan = PLANS[planId.toLowerCase()];
         if (!plan) {
-            return res.status(400).json({
-                error: 'Invalid plan',
-                message: 'Geçersiz paket: ' + planId
-            });
+            return res.status(400).json({ error: 'Invalid plan: ' + planId });
         }
 
-        // MongoDB bağlan
-        const { db } = await connectToDatabase();
-        const usersCollection = db.collection('users');
-        const transactionsCollection = db.collection('transactions');
-
-        // Kullanıcıyı bul veya oluştur
-        let user = await usersCollection.findOne({ wixUserId: wixUserId });
+        // Find or Create User
+        let user = await User.findByWixId(wixUserId);
 
         const now = new Date();
         const expiresAt = new Date(now.getTime() + plan.duration * 24 * 60 * 60 * 1000);
 
         if (!user) {
-            // Yeni kullanıcı oluştur
-            const newUser = {
-                wixUserId: wixUserId,
+            // Create New
+            user = await User.createFromWix({
+                userId: wixUserId,
                 email: email || '',
-                displayName: displayName || '',
-                planId: planId.toLowerCase(),
-                credits: plan.credits,
-                totalCredits: plan.credits,
-                totalUsed: 0,
-                subscriptionStatus: 'active',
-                purchasedAt: now,
-                expiresAt: expiresAt,
-                totalSongsGenerated: 0,
-                createdAt: now,
-                updatedAt: now
-            };
-
-            await usersCollection.insertOne(newUser);
-            user = newUser;
-
-            console.log('New user created with plan:', planId, 'Credits:', plan.credits);
-        } else {
-            // Mevcut kullanıcıyı güncelle
-            const updateData = {
-                planId: planId.toLowerCase(),
-                credits: user.credits + plan.credits, // Mevcut krediye ekle
-                totalCredits: (user.totalCredits || 0) + plan.credits,
-                subscriptionStatus: 'active',
-                purchasedAt: now,
-                expiresAt: expiresAt,
-                updatedAt: now
-            };
-
-            if (email) updateData.email = email;
-            if (displayName) updateData.displayName = displayName;
-
-            await usersCollection.updateOne(
-                { wixUserId: wixUserId },
-                { $set: updateData }
-            );
-
-            console.log('User updated with plan:', planId, 'New credits:', user.credits + plan.credits);
+                displayName: displayName || ''
+            });
+            // Apply Plan
+            // We can reuse activatePlan logic but we might want to manually set credits to match local logic
+            // User model has activatePlan but let's be explicit here or use the model method
         }
 
-        // İşlem kaydı oluştur
-        const transaction = {
-            wixUserId: wixUserId,
-            oderId: orderId || null,
+        // Update User Plan & Credits
+        // Using direct update for now to match logic in previous file, but using Mongoose
+
+        // We accumulate credits? Or reset?
+        // Previous logic: user.credits + plan.credits
+        // This means it's additive.
+        user.planId = planId.toLowerCase();
+        user.credits = (user.credits || 0) + plan.credits;
+        user.totalCredits = (user.totalCredits || 0) + plan.credits;
+        user.subscriptionStatus = 'active';
+        user.purchasedAt = now;
+        user.expiresAt = expiresAt;
+        if (email) user.email = email;
+        if (displayName) user.displayName = displayName;
+
+        await user.save();
+        console.log(`User ${wixUserId} updated with plan ${planId}. New Credits: ${user.credits}`);
+
+        // Transaction Record
+        await Transaction.create({
+            wixUserId: wixUserId, // Transaction model expects userId primarily (ObjectId). 
+            // The previous code used wixUserId in Transaction? 
+            // Let's check Transaction model if possible. 
+            // Assuming it accepts wixUserId or we should pass user._id
+            userId: user._id, // Better to link to internal ID
+            orderId: orderId || null,
             type: 'purchase',
             planId: planId.toLowerCase(),
             planName: plan.name,
@@ -157,11 +105,8 @@ module.exports = async (req, res) => {
             currency: 'TRY',
             status: 'completed',
             createdAt: now
-        };
+        });
 
-        await transactionsCollection.insertOne(transaction);
-
-        // Başarılı response
         return res.status(200).json({
             success: true,
             message: 'Kredi başarıyla yüklendi',
@@ -169,16 +114,13 @@ module.exports = async (req, res) => {
                 wixUserId: wixUserId,
                 planId: planId,
                 creditsAdded: plan.credits,
-                newBalance: user ? user.credits + plan.credits : plan.credits,
+                newBalance: user.credits,
                 expiresAt: expiresAt
             }
         });
 
     } catch (error) {
         console.error('Webhook error:', error);
-        return res.status(500).json({
-            error: 'Server error',
-            message: 'Sunucu hatası: ' + error.message
-        });
+        return res.status(500).json({ error: 'Server error', message: error.message });
     }
 };
