@@ -1064,7 +1064,9 @@
                 'Klasik': 'Classical, Orchestral, Piano, Violin, Cinematic'
             };
 
-            const stylePrompt = genreMap[pending.genre] || pending.genre + ", Turkish Music";
+            const stylePrompt = pending.genre === 'custom'
+                ? document.getElementById('gfStyle').value
+                : genreMap[pending.genre] || pending.genre + ", Turkish Music"; // Use genreMap for predefined genres
 
             // Construct prompt for optimal results
             // We give instructions in English to the model for better adherence, but specify Turkish language for output.
@@ -1084,36 +1086,50 @@
                 }
             };
 
-            // Call API
-            fetch('/api/generate?type=song', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken },
-                body: JSON.stringify(payload)
-            })
-                .then(async res => {
-                    const data = await res.json();
-                    if (!res.ok) {
-                        throw new Error(data.error || data.msg || data.message || 'API Hatası: ' + res.status);
-                    }
-                    return data;
-                })
-                .then(data => {
-                    // Only throw if explicit error field exists or status is unused 'error' string
-                    if (data.error) {
-                        throw new Error(data.error);
-                    }
-                    if (data.status === 'error' && data.msg) {
-                        throw new Error(data.msg);
-                    }
-
-                    const taskId = data.data ? data.data.taskId : data.taskId;
-                    if (!taskId) throw new Error('Task ID alınamadı (API Yanıtı geçersiz)');
-                    pollStatus(taskId, pending);
-                })
-                .catch(err => {
-                    document.getElementById('generatingOverlay').classList.remove('active');
-                    showToast('Hata: ' + err.message, 'error');
+            // 1. Initiate Order (Save to DB)
+            try {
+                const res = await fetch('/api/gift/initiate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ guestInfo: payload.guestInfo, orderData: payload })
                 });
+                const data = await res.json();
+
+                if (data.success && data.transactionId) {
+                    currentTransactionId = data.transactionId;
+                    console.log('Transaction Initiated:', currentTransactionId);
+                    // Start Polling for Webhook
+                    pollForWebhook(currentTransactionId, pending);
+                } else {
+                    throw new Error('Sipariş oluşturulamadı.');
+                }
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById('generatingOverlay').classList.remove('active');
+                showToast('Hata: Sipariş başlatılamadı.', 'error');
+            }
+        }
+
+        function pollForWebhook(transactionId, orderData) {
+            const interval = setInterval(async () => {
+                try {
+                    const res = await fetch(`/api/gift/status?transactionId=${transactionId}`);
+                    const json = await res.json();
+
+                    if (json.taskId) {
+                        // Webhook fired! Generation started.
+                        clearInterval(interval);
+                        document.getElementById('genStatusText').textContent = 'Ödeme Onaylandı! Şarkınız Hazırlanıyor...';
+                        pollStatus(json.taskId, orderData);
+                    } else {
+                        // Still waiting
+                        document.getElementById('genStatusText').textContent = 'Ödeme Onayı Bekleniyor... (Lütfen Ödemeyi Tamamlayın)';
+                    }
+                } catch (e) {
+                    console.error('Webhook poll error', e);
+                }
+            }, 3000); // Check every 3 seconds
         }
 
         function pollStatus(taskId, orderData) {
@@ -1173,7 +1189,7 @@
                 const imageUrl = track.image_url || track.imageUrl || track.imageLargeUrl;
                 const title = track.title || 'Hediye Şarkı';
                 const date = new Date(track.generatedAt || Date.now()).toLocaleDateString('tr-TR');
-                const lyrics = track.lyric || track.lyrics || "";
+                const lyrics = track.lyric || track.lyrics || (track.metadata && track.metadata.prompt) || "";
 
                 const div = document.createElement('div');
                 div.className = 'gf-track-card';
@@ -1214,15 +1230,20 @@
 
         async function downloadWithTags(audioUrl, coverUrl, title, artist) {
             try {
-                showToast('İndirme hazırlanıyor...', 'info');
+                showToast('İndirme hazırlanıyor... (Lütfen bekleyin)', 'info');
+
+                // Use Proxy to avoid CORS issues
+                const proxyBase = '/api/file-proxy?url=';
 
                 // Fetch Audio
-                const audioRes = await fetch(audioUrl);
+                const audioRes = await fetch(proxyBase + encodeURIComponent(audioUrl));
+                if (!audioRes.ok) throw new Error('Ses dosyası indirilemedi');
                 const audioBlob = await audioRes.blob();
                 const audioBuffer = await audioBlob.arrayBuffer();
 
                 // Fetch Cover
-                const coverRes = await fetch(coverUrl);
+                const coverRes = await fetch(proxyBase + encodeURIComponent(coverUrl));
+                if (!coverRes.ok) throw new Error('Kapak görseli indirilemedi');
                 const coverBlob = await coverRes.blob();
                 const coverBuffer = await coverBlob.arrayBuffer();
 
@@ -1245,10 +1266,10 @@
                 document.body.removeChild(link);
                 URL.revokeObjectURL(taggedUrl);
 
-                showToast('İndirme başladı!', 'success');
+                showToast('İndirme tamamlandı!', 'success');
             } catch (e) {
                 console.error(e);
-                showToast('Etiketleme başarısız, normal indiriliyor...', 'error');
+                showToast('Etiketleme hatası: ' + e.message + '. Normal indiriliyor...', 'error');
                 window.open(audioUrl, '_blank');
             }
         }
