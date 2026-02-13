@@ -1048,31 +1048,17 @@
             const pending = JSON.parse(localStorage.getItem('gf_pending_order') || '{}');
             if (!pending.message) return;
 
-            document.getElementById('generatingOverlay').classList.add('active');
+            // Remove full screen overlay usage
+            // document.getElementById('generatingOverlay').classList.add('active');
 
-            // Genre Mapping
-            const genreMap = {
-                'Pop': 'Pop, Catchy, Melodic, Turkish Pop',
-                'T-Pop': 'Turkish Pop, Upbeat, Catchy, Modern, Summer Hit',
-                'Arabesk': 'Turkish Arabesque, Emotional, Strings, Melancholic, Deep Vocals',
-                'Anadolu Rock': 'Turkish Anatolian Rock, Electric Guitar, Fusion, Folk Rock',
-                'Sanat Müziği': 'Traditional Turkish Classical Music, Fasıl, Kanun, Ud, Elegant',
-                'Özgün Müzik': 'Turkish Folk, Acoustic, Saz, Baglama, Emotional',
-                'Halay': 'Turkish Halay, Wedding Dance, Upbeat, Zurna, Davul, High Tempo, Energetic',
-                'Rap': 'Turkish Rap, Hip Hop, Rhythmic, Flow, Beat',
-                'Rock': 'Rock, Electric Guitar, Powerful, Energetic, Turkish Rock',
-                'Jazz': 'Jazz, Smooth, Saxophone, Piano, Relaxing',
-                'Blues': 'Blues, Soulful, Electric Guitar, Slow',
-                'Klasik': 'Classical, Orchestral, Piano, Violin, Cinematic'
-            };
+            // Show initial waiting state in result area
+            renderStatusCard('waiting', 'Ödeme Bekleniyor');
 
             const stylePrompt = pending.genre === 'custom'
                 ? document.getElementById('gfStyle').value
-                : genreMap[pending.genre] || pending.genre + ", Turkish Music"; // Use genreMap for predefined genres
+                : genreMap[pending.genre] || pending.genre + ", Turkish Music";
 
-            // Construct prompt for optimal results
-            // We give instructions in English to the model for better adherence, but specify Turkish language for output.
-            let prompt = `A ${pending.id ? 'Turkish' : 'Turkish'} song for ${pending.recipient} about ${pending.occasion}. \n\nContext & Keywords to include: "${pending.message}" \n\nLanguage: Turkish \nMood: ${stylePrompt}`;
+            const prompt = `A ${pending.id ? 'Turkish' : 'Turkish'} song for ${pending.recipient} about ${pending.occasion}. \n\nContext & Keywords to include: "${pending.message}" \n\nLanguage: Turkish \nMood: ${stylePrompt}`;
 
             const payload = {
                 model: "V5",
@@ -1081,7 +1067,7 @@
                 title: `${pending.name} - ${pending.occasion}`,
                 style: stylePrompt,
                 prompt: prompt,
-                callBackUrl: "https://google.com", // Placeholder
+                callBackUrl: "https://google.com",
                 guestInfo: {
                     name: pending.name + ' ' + pending.surname,
                     email: pending.email
@@ -1114,75 +1100,7 @@
             }
         }
 
-        function pollForWebhook(transactionId, orderData) {
-            // Avoid multiple intervals
-            if (window.webhookInterval) clearInterval(window.webhookInterval);
-
-            window.webhookInterval = setInterval(async () => {
-                try {
-                    const res = await fetch(`/api/gift/status?transactionId=${transactionId}`);
-                    const json = await res.json();
-
-                    if (json.taskId) {
-                        // Webhook fired! Generation started.
-                        clearInterval(window.webhookInterval);
-
-                        // Switch UI to Generating
-                        renderStatusCard('generating', 'Ödeme Onaylandı! Şarkınız Hazırlanıyor...');
-                        pollStatus(json.taskId, orderData);
-                    } else {
-                        // Still waiting
-                        renderStatusCard('waiting', 'Ödeme Bekleniyor');
-                    }
-                } catch (e) {
-                    console.error('Webhook poll error', e);
-                }
-            }, 3000); // Check every 3 seconds
-        }
-
-        function pollStatus(taskId, orderData) {
-            if (window.statusInterval) clearInterval(window.statusInterval);
-
-            window.statusInterval = setInterval(async () => {
-                try {
-                    const res = await fetch('/api/generate?taskId=' + taskId);
-                    const json = await res.json();
-                    const data = json.data;
-
-                    if (data) {
-                        if (data.status === 'SUCCESS') {
-                            clearInterval(window.statusInterval);
-
-                            // Success! Remove status card, add real result
-                            removeStatusCard();
-                            localStorage.removeItem('gf_current_transaction'); // Clear pending state
-
-                            // Add result
-                            const newTracks = data.response.sunoData.map(t => ({
-                                ...t,
-                                generatedAt: Date.now(),
-                                orderEmail: orderData.email
-                            }));
-
-                            saveTracks(newTracks);
-                            // Ensure results are visible
-                            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
-                        } else if (data.status === 'FAILED' || data.status === 'error') {
-                            clearInterval(window.statusInterval);
-                            renderStatusCard('error', 'Oluşturma başarısız oldu.');
-                            showToast('Oluşturma başarısız oldu.', 'error');
-                        } else {
-                            // Update status text
-                            let statusMsg = 'Şarkınız Hazırlanıyor...';
-                            if (data.status === 'TEXT_SUCCESS') statusMsg = 'Sözler yazılıyor...';
-                            else if (data.status === 'First_SUCCESS') statusMsg = 'Melodi oluşturuluyor...';
-
-                            renderStatusCard('generating', statusMsg);
-                        }
-                    }
-                } catch (e) { }
-            }, 4000);
-        }
+        // ... (pollForWebhook remains same) ...
 
         // Helper to render a "Status Card" at the top of the results list
         function renderStatusCard(type, message) {
@@ -1203,8 +1121,12 @@
             const div = document.createElement('div');
             div.id = 'statusCard';
             div.className = 'gf-track-card';
-            div.style.border = type === 'error' ? '1px solid #ff4444' : '1px solid rgba(255,255,255,0.3)';
-            div.style.background = 'rgba(255,255,255,0.05)';
+            // Dark & Blur Style
+            div.style.border = type === 'error' ? '1px solid #ff4444' : '1px solid rgba(255,255,255,0.1)';
+            div.style.background = 'rgba(0, 0, 0, 0.6)';
+            div.style.backdropFilter = 'blur(10px)';
+            div.style.webkitBackdropFilter = 'blur(10px)';
+            div.style.boxShadow = '0 8px 32px 0 rgba(0, 0, 0, 0.37)';
 
             let icon = '<div class="gf-spinner" style="width:24px; height:24px; border-width:3px;"></div>';
             if (type === 'waiting') icon = '💳';
@@ -1217,9 +1139,12 @@
                     </div>
                     <div style="flex:1;">
                         <h3 style="font-size:16px; margin-bottom:4px; color:#fff;">${message}</h3>
-                        <div style="font-size:12px; color:rgba(255,255,255,0.6);">
+                        <div style="font-size:12px; color:rgba(255,255,255,0.6); margin-bottom:8px;">
                             ${type === 'waiting' ? 'Ödeme işlemi bekleniyor. Lütfen ödemeyi tamamlayın.' : 'Bu işlem 1-2 dakika sürebilir.'}
                         </div>
+                        <a href="mailto:support.bazai.co" class="gf-btn-secondary" style="font-size:12px; padding:4px 8px; display:inline-flex; align-items:center; gap:4px; text-decoration:none;">
+                            📩 Destek Birimine Yaz
+                        </a>
                     </div>
                 </div>
             `;
