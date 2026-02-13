@@ -4,6 +4,7 @@ const cors = require('cors');
 const axios = require('axios');
 const mongoose = require('mongoose');
 const crypto = require('crypto');
+const path = require('path');
 require('dotenv').config();
 
 // Models
@@ -23,6 +24,12 @@ app.get('/sitemap.xml', (req, res) => {
   res.sendFile(path.join(__dirname, 'sitemap.xml'));
 });
 
+// Serve Key Static Files from Root
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('/index.html', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('/favicon.ico', (req, res) => res.sendFile(path.join(__dirname, 'favicon.ico')));
+app.get('/baz-logo.png', (req, res) => res.sendFile(path.join(__dirname, 'baz-logo.png')));
+
 // MongoDB bağlantısı
 mongoose.connect(process.env.MONGODB_URI).then(() => {
   console.log('✅ MongoDB connected');
@@ -37,7 +44,8 @@ app.use(cors({
 }));
 
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.static('public')); // Keep for future use or if user creates it
+
 
 // KIE.ai API Configuration
 const KIE_API_URL = 'https://api.kie.ai/api/v1';
