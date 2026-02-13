@@ -971,19 +971,32 @@
             if (popup) {
                 document.getElementById('paymentOverlay').classList.add('active');
                 const checkInterval = setInterval(() => {
+                    let isRedirected = false;
+                    try {
+                        // Try to access location. If successful, we are likely on the same domain (Return URL).
+                        // Note: accessing href throws generic SecurityError if cross-origin.
+                        const href = popup.location.href;
+
+                        // If we can read the href and it's not the payment link or blank
+                        if (href && !href.includes('iyzi.link') && href !== 'about:blank') {
+                            isRedirected = true;
+                        }
+                    } catch (e) {
+                        // Still on iyzi.link (Cross-Origin), ignore error
+                    }
+
+                    if (isRedirected) {
+                        clearInterval(checkInterval);
+                        popup.close();
+                        document.getElementById('paymentOverlay').classList.remove('active');
+                        startMusicGeneration();
+                        return;
+                    }
+
                     if (popup.closed) {
                         clearInterval(checkInterval);
-                        // Do not close overlay automatically. Wait for user to click "Confirmed".
-                        // document.getElementById('paymentOverlay').classList.remove('active');
+                        // If closed without redirect detection, rely on manual button or check if we simply missed it.
                     }
-                    try {
-                        if (popup.location.href.includes('iyzi.link/result/')) {
-                            clearInterval(checkInterval);
-                            popup.close();
-                            document.getElementById('paymentOverlay').classList.remove('active');
-                            startMusicGeneration();
-                        }
-                    } catch (e) { }
                 }, 1000);
             } else {
                 // Popup blocked
@@ -1082,10 +1095,19 @@
                 headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken },
                 body: JSON.stringify(payload)
             })
-                .then(res => res.json())
+                .then(async res => {
+                    const data = await res.json();
+                    if (!res.ok) {
+                        throw new Error(data.error || data.msg || data.message || 'API Hatası: ' + res.status);
+                    }
+                    return data;
+                })
                 .then(data => {
+                    if (data.error || data.msg) {
+                        throw new Error(data.error || data.msg);
+                    }
                     const taskId = data.data ? data.data.taskId : data.taskId;
-                    if (!taskId) throw new Error('Task ID alınamadı');
+                    if (!taskId) throw new Error('Task ID alınamadı (API Yanıtı geçersiz)');
                     pollStatus(taskId, pending);
                 })
                 .catch(err => {
