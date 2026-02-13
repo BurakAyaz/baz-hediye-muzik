@@ -819,6 +819,14 @@
             <div class="gf-spinner"></div>
             <h2>Ödeme Bekleniyor</h2>
             <p>Lütfen açılan pencerede ödemeyi tamamlayın.</p>
+            <div style="margin-top: 20px;">
+                <button type="button" class="gf-btn-secondary" onclick="manualPaymentConfirm()"
+                    style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 10px 20px; border-radius: 8px; cursor: pointer;">
+                    Ödemeyi Tamamladım
+                </button>
+            </div>
+            <p style="margin-top: 10px; font-size: 12px; color: rgba(255,255,255,0.5);">Pop-up açılmadıysa veya sorun
+                yaşıyorsanız bu butona tıklayın.</p>
         </div>
     </div>
 
@@ -965,12 +973,8 @@
                 const checkInterval = setInterval(() => {
                     if (popup.closed) {
                         clearInterval(checkInterval);
-                        document.getElementById('paymentOverlay').classList.remove('active');
-                        // Check if we should assume success? 
-                        // Cross-origin prevents reading URL unless on same domain result page
-                        // For this implementation, we rely on user manually closing popup implies done? No.
-                        // We rely on URL polling if possible, or redirect based logic.
-                        // Since we can't reliably know, check URL poller below:
+                        // Do not close overlay automatically. Wait for user to click "Confirmed".
+                        // document.getElementById('paymentOverlay').classList.remove('active');
                     }
                     try {
                         if (popup.location.href.includes('iyzi.link/result/')) {
@@ -987,6 +991,12 @@
                 window.location.href = paymentUrl;
             }
         });
+
+        // Manual Payment Confirmation (Fix for Cross-Origin issues)
+        function manualPaymentConfirm() {
+            document.getElementById('paymentOverlay').classList.remove('active');
+            startMusicGeneration();
+        }
 
         function validateForm() {
             let valid = true;
