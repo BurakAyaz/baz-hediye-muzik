@@ -55,7 +55,8 @@ module.exports = async (req, res) => {
 
         // Run credit check middleware
         // This validates: Subscription, Expiry, Credit Balance >= 1
-        await runMiddleware(req, res, checkCredits);
+        // Using factory pattern for specific action type if generic, or just 'generate'
+        await runMiddleware(req, res, checkCredits('generate'));
 
         // 5. Processing
         const type = req.query.type || 'song'; // song, cover, extend, persona

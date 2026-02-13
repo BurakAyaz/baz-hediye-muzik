@@ -1,13 +1,26 @@
-// middleware/credits.js - DÜZELTİLMİŞ
+// middleware/credits.js - DÜZELTİLMİŞ (Factory & Direct Support)
 // HER BUTONA BASIŞ = 1 KREDİ
 
 const Transaction = require('../models/Transaction');
 
 /**
  * Kredi kontrolü middleware'i
- * Her işlem 1 kredi kullanır
+ * Hem checkCredits('action') hem de checkCredits(req, res, next) şeklinde kullanılabilir.
  */
-const checkCredits = async (req, res, next) => {
+const checkCredits = (reqOrAction, res, next) => {
+  // 1. Direct Middleware Usage: checkCredits(req, res, next)
+  if (res && next) {
+    const req = reqOrAction;
+    return handleCheck(req, res, next, 'general');
+  }
+
+  // 2. Factory Usage: checkCredits('action')
+  const action = typeof reqOrAction === 'string' ? reqOrAction : 'general';
+  return (req, res, next) => handleCheck(req, res, next, action);
+};
+
+// Asıl kontrol fonksiyonu
+const handleCheck = async (req, res, next, action) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -15,7 +28,7 @@ const checkCredits = async (req, res, next) => {
         message: 'Lütfen giriş yapın'
       });
     }
-    
+
     // Abonelik aktif mi?
     if (!req.user.isSubscriptionActive()) {
       // Süre dolmuş mu?
@@ -27,7 +40,7 @@ const checkCredits = async (req, res, next) => {
           expiresAt: req.user.expiresAt
         });
       }
-      
+
       // Kredi bitmiş mi?
       if (req.user.credits <= 0) {
         return res.status(403).json({
@@ -37,7 +50,7 @@ const checkCredits = async (req, res, next) => {
           credits: 0
         });
       }
-      
+
       // Abonelik yok
       return res.status(403).json({
         error: 'Abonelik gerekli',
@@ -45,7 +58,7 @@ const checkCredits = async (req, res, next) => {
         code: 'NO_SUBSCRIPTION'
       });
     }
-    
+
     // Kredi yeterli mi? (1 kredi gerekli)
     if (req.user.credits < 1) {
       return res.status(403).json({
@@ -55,12 +68,13 @@ const checkCredits = async (req, res, next) => {
         credits: req.user.credits
       });
     }
-    
-    // Kredi bilgisini request'e ekle
+
+    // Kredi bilgisini ve aksiyonu request'e ekle
     req.creditsBefore = req.user.credits;
-    
+    req.creditAction = action;
+
     next();
-    
+
   } catch (error) {
     console.error('Credit check error:', error);
     res.status(500).json({ error: 'Kredi kontrolü başarısız' });
@@ -76,15 +90,15 @@ const deductCredit = async (req, transactionData = {}) => {
   try {
     const user = req.user;
     const creditsBefore = user.credits;
-    
+
     // 1 kredi düş
     await user.useCredit();
-    
+
     // Transaction kaydı oluştur
     const transaction = new Transaction({
       userId: user._id,
       type: 'credit_use',
-      action: transactionData.type || 'generate',
+      action: transactionData.type || req.creditAction || 'generate',
       amount: -1,
       balanceAfter: user.credits,
       taskId: transactionData.taskId,
@@ -98,9 +112,9 @@ const deductCredit = async (req, transactionData = {}) => {
       },
       status: 'completed'
     });
-    
+
     await transaction.save();
-    
+
     return {
       success: true,
       creditsUsed: 1,
@@ -108,7 +122,7 @@ const deductCredit = async (req, transactionData = {}) => {
       creditsRemaining: user.credits,
       transactionId: transaction._id
     };
-    
+
   } catch (error) {
     console.error('Deduct credit error:', error);
     throw error;
@@ -121,9 +135,9 @@ const deductCredit = async (req, transactionData = {}) => {
 const refundCredit = async (req, reason = 'İşlem başarısız') => {
   try {
     const user = req.user;
-    
+
     await user.refundCredit();
-    
+
     // İade kaydı oluştur
     const transaction = new Transaction({
       userId: user._id,
@@ -134,15 +148,15 @@ const refundCredit = async (req, reason = 'İşlem başarısız') => {
       status: 'refunded',
       description: reason
     });
-    
+
     await transaction.save();
-    
-    return { 
-      success: true, 
+
+    return {
+      success: true,
       refundedCredits: 1,
-      creditsRemaining: user.credits 
+      creditsRemaining: user.credits
     };
-    
+
   } catch (error) {
     console.error('Refund credit error:', error);
     throw error;

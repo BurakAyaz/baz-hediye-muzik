@@ -49,7 +49,7 @@ module.exports = async (req, res) => {
                 }
 
                 // Credit Check
-                await runMiddleware(req, res, checkCredits);
+                await runMiddleware(req, res, checkCredits('lyrics'));
 
                 const response = await fetch('https://api.kieai.erweima.ai/api/v1/lyrics', {
                     method: 'POST',
